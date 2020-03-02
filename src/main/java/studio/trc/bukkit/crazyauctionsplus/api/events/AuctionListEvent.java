@@ -1,0 +1,57 @@
+package studio.trc.bukkit.crazyauctionsplus.api.events;
+
+import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
+
+/**
+ *
+ * @author BadBones69
+ *
+ * This event is fired when a new item is listed onto the auction house.
+ *
+ */
+public class AuctionListEvent extends Event {
+    
+    private static final HandlerList handlers = new HandlerList();
+    private final Player player;
+    private final double money;
+    private final ShopType shop;
+    private final ItemStack item;
+    
+    public AuctionListEvent(Player player, ShopType shop, ItemStack item, double money) {
+        this.player = player;
+        this.shop = shop;
+        this.item = item;
+        this.money = money;
+    }
+    
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+    
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
+    
+    public Player getPlayer() {
+        return player;
+    }
+    
+    public ShopType getShopType() {
+        return shop;
+    }
+    
+    public ItemStack getItem() {
+        return item;
+    }
+    
+    public double getMoney() {
+        return money;
+    }
+    
+}
