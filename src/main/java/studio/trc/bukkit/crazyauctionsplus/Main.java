@@ -36,7 +36,6 @@ import studio.trc.bukkit.crazyauctionsplus.utils.FileManager;
 import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl.ReloadType;
 import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl.RollBackMethod;
 
-
 public class Main
     extends JavaPlugin 
 {

@@ -1,6 +1,5 @@
 package studio.trc.bukkit.crazyauctionsplus.events;
 
-import java.lang.reflect.InvocationTargetException;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Category;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
@@ -35,6 +34,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.lang.reflect.InvocationTargetException;
+import org.bukkit.OfflinePlayer;
 
 public class GUIAction
     extends GUI
@@ -306,17 +307,36 @@ public class GUIAction
                                                     if (p != null) {
                                                         p.sendMessage(Messages.getMessage("Admin-Force-Cancelled-To-Player"));
                                                     }
-                                                    if (mgs.getShopType().equals(ShopType.BUY)) {
-                                                        AuctionCancelledEvent event = new AuctionCancelledEvent((p != null ? p : Bukkit.getOfflinePlayer(owner)), mgs, CancelledReason.ADMIN_FORCE_CANCEL, ShopType.BUY);
-                                                        Bukkit.getPluginManager().callEvent(event);
-                                                        CurrencyManager.addMoney(Bukkit.getOfflinePlayer(owner), mgs.getReward());
-                                                        market.removeGoods(uid);
-                                                    } else {
-                                                        AuctionCancelledEvent event = new AuctionCancelledEvent((p != null ? p : Bukkit.getOfflinePlayer(owner)), mgs, CancelledReason.ADMIN_FORCE_CANCEL, ShopType.SELL);
-                                                        Bukkit.getPluginManager().callEvent(event);
-                                                        Storage playerdata = Storage.getPlayer(Bukkit.getOfflinePlayer(owner));
-                                                        playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mgs.getItem(), mgs.getFullTime(), false));
-                                                        market.removeGoods(mgs.getUID());
+                                                    switch (mgs.getShopType()) {
+                                                        case BID: {
+                                                            AuctionCancelledEvent event = new AuctionCancelledEvent((p != null ? p : Bukkit.getOfflinePlayer(owner)), mgs, CancelledReason.ADMIN_FORCE_CANCEL, ShopType.BID);
+                                                            Bukkit.getPluginManager().callEvent(event);
+                                                            Storage playerdata = Storage.getPlayer(Bukkit.getOfflinePlayer(owner));
+                                                            if (mgs.getTopBidder() != null && !mgs.getTopBidder().equalsIgnoreCase("None")) {
+                                                                OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(mgs.getTopBidder().split(":")[1]));
+                                                                if (op != null) {
+                                                                    CurrencyManager.addMoney(op, mgs.getPrice());
+                                                                }
+                                                            }
+                                                            playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mgs.getItem(), mgs.getFullTime(), false));
+                                                            market.removeGoods(mgs.getUID());
+                                                            break;
+                                                        }
+                                                        case BUY: {
+                                                            AuctionCancelledEvent event = new AuctionCancelledEvent((p != null ? p : Bukkit.getOfflinePlayer(owner)), mgs, CancelledReason.ADMIN_FORCE_CANCEL, ShopType.BUY);
+                                                            Bukkit.getPluginManager().callEvent(event);
+                                                            CurrencyManager.addMoney(Bukkit.getOfflinePlayer(owner), mgs.getReward());
+                                                            market.removeGoods(uid);
+                                                            break;
+                                                        }
+                                                        case SELL: {
+                                                            AuctionCancelledEvent event = new AuctionCancelledEvent((p != null ? p : Bukkit.getOfflinePlayer(owner)), mgs, CancelledReason.ADMIN_FORCE_CANCEL, ShopType.SELL);
+                                                            Bukkit.getPluginManager().callEvent(event);
+                                                            Storage playerdata = Storage.getPlayer(Bukkit.getOfflinePlayer(owner));
+                                                            playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mgs.getItem(), mgs.getFullTime(), false));
+                                                            market.removeGoods(mgs.getUID());
+                                                            break;
+                                                        }
                                                     }
                                                     player.sendMessage(Messages.getMessage("Admin-Force-Cancelled"));
                                                     playClick(player);
@@ -570,6 +590,12 @@ public class GUIAction
                                         player.sendMessage(Messages.getMessage("Cancelled-Item-On-Bid", placeholders));
                                         AuctionCancelledEvent event = new AuctionCancelledEvent(player, mg, CancelledReason.PLAYER_FORCE_CANCEL, ShopType.BID);
                                         Bukkit.getPluginManager().callEvent(event);
+                                        if (mg.getTopBidder() != null && !mg.getTopBidder().equalsIgnoreCase("None")) {
+                                            OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(mg.getTopBidder().split(":")[1]));
+                                            if (op != null) {
+                                                CurrencyManager.addMoney(op, mg.getPrice());
+                                            }
+                                        }
                                         Storage playerdata = Storage.getPlayer(mg.getItemOwner().getUUID());
                                         playerdata.addItem(new ItemMail(playerdata.makeUID(), mg.getItemOwner().getUUID(), mg.getItem(), mg.getFullTime(), false));
                                         market.removeGoods(uid);

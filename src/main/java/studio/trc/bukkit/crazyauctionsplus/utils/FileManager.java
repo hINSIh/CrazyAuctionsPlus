@@ -1,6 +1,5 @@
 package studio.trc.bukkit.crazyauctionsplus.utils;
 
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -43,6 +42,7 @@ import studio.trc.bukkit.crazyauctionsplus.database.engine.SQLiteEngine;
 import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl.RollBackMethod;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Version;
+import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
 
 public class FileManager {
     
@@ -143,9 +143,21 @@ public class FileManager {
                     if (databaseFile.get("OutOfTime/Cancelled") != null) {
                         for (String key : databaseFile.getConfigurationSection("OutOfTime/Cancelled").getKeys(false)) {
                             if (databaseFile.get("OutOfTime/Cancelled." + key + ".Item") != null) {
-                                Storage playerdata = Storage.getPlayer(Bukkit.getOfflinePlayer(UUID.fromString(databaseFile.getString("OutOfTime/Cancelled." + key + ".Owner").split(":")[1])));
-                                ItemMail im = new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(playerdata.getUUID()), databaseFile.getItemStack("OutOfTime/Cancelled." + key + ".Item"), databaseFile.getLong("OutOfTime/Cancelled." + key + ".Full-Time"), databaseFile.getBoolean("OutOfTime/Cancelled." + key + ".Never-Expire"));
-                                playerdata.addItem(im);
+                                if (databaseFile.get("OutOfTime/Cancelled." + key + ".Owner") != null) {
+                                    OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(databaseFile.getString("OutOfTime/Cancelled." + key + ".Owner").split(":")[1]));
+                                    if (op != null) {
+                                        Storage playerdata = Storage.getPlayer(op);
+                                        ItemMail im = new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(playerdata.getUUID()), databaseFile.getItemStack("OutOfTime/Cancelled." + key + ".Item"), databaseFile.getLong("OutOfTime/Cancelled." + key + ".Full-Time"), databaseFile.getBoolean("OutOfTime/Cancelled." + key + ".Never-Expire"));
+                                        playerdata.addItem(im);
+                                    }
+                                } else if (databaseFile.get("OutOfTime/Cancelled." + key + ".Seller") != null) {
+                                    OfflinePlayer op = Bukkit.getOfflinePlayer(databaseFile.getString("OutOfTime/Cancelled." + key + ".Seller"));
+                                    if (op != null) {
+                                        Storage playerdata = Storage.getPlayer(op);
+                                        ItemMail im = new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(playerdata.getUUID()), databaseFile.getItemStack("OutOfTime/Cancelled." + key + ".Item"), databaseFile.getLong("OutOfTime/Cancelled." + key + ".Full-Time"), databaseFile.getBoolean("OutOfTime/Cancelled." + key + ".Never-Expire"));
+                                        playerdata.addItem(im);
+                                    }
+                                }
                             }
                         }
                     }
@@ -184,7 +196,7 @@ public class FileManager {
                 file.createNewFile();
             }
             try (Connection DBFile = DriverManager.getConnection("jdbc:sqlite:plugins/CrazyAuctionsPlus/Backup/" + fileName)) {
-                DBFile.prepareStatement("CREATE TABLE IF NOT EXISTS ItemMail" + // 创建库好像出事了
+                DBFile.prepareStatement("CREATE TABLE IF NOT EXISTS ItemMail" +
                     "("
                     + "UUID VARCHAR(36) NOT NULL PRIMARY KEY,"
                     + "Name VARCHAR(16) NOT NULL,"
@@ -753,7 +765,6 @@ public class FileManager {
         
         //ENUM_NAME("FileName.yml", "FilePath.yml"),
         CONFIG("Config.yml", "Config.yml"),
-//        DATA("Data.yml", "Data.yml"),
         DATABASE("Database.yml", "Database.yml"),
         MESSAGES("Messages.yml", "Messages.yml");
         
@@ -786,7 +797,6 @@ public class FileManager {
             return fileLocation;
         }
 
-        // Plus verion's edited
         public ProtectedConfiguration getFile() {
             return new ProtectedConfiguration(this);
         }
@@ -804,7 +814,6 @@ public class FileManager {
         public void relaodFile() {
             getInstance().reloadFile(this);
         }
-        
     }
     
     public static class ProtectedConfiguration {
