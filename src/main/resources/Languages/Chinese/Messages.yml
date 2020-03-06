@@ -123,10 +123,10 @@ Chinese:
         ItemCollection:
             Help:
                 - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
-                - ' &3/Ca Admin ItemColletion Add [名称] &c- &a将手上的物品添加到收藏'
-                - ' &3/Ca Admin ItemColletion Delete [名称/UID] &c- &a删除收藏中的某个物品'
-                - ' &3/Ca Admin ItemColletion List &c- &a列出所有收藏的物品'
-                - ' &3/Ca Admin ItemColletion Give [名称/UID] &8[玩家] &c- &a将收藏的物品给予玩家'
+                - ' &3/Ca Admin ItemCollection Add [名称] &c- &a将手上的物品添加到收藏'
+                - ' &3/Ca Admin ItemCollection Delete [名称/UID] &c- &a删除收藏中的某个物品'
+                - ' &3/Ca Admin ItemCollection List &c- &a列出所有收藏的物品'
+                - ' &3/Ca Admin ItemCollection Give [名称/UID] &8[玩家] &c- &a将收藏的物品给予玩家'
                 - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             Add: 
                 Help: '{prefix}&c正确使用方式: &e/Ca Admin ItemCollection Add [名称]'
@@ -345,10 +345,10 @@ English:
         ItemCollection:
             Help:
                 - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
-                - ' &3/Ca Admin ItemColletion Add [DisplayName] &c- &aAdd items to collection.'
-                - ' &3/Ca Admin ItemColletion Delete [DisplayName/UID] &c- &aDelete an item in the collection.'
-                - ' &3/Ca Admin ItemColletion List &c- &aList all items in the collection.'
-                - ' &3/Ca Admin ItemColletion Give [DisplayName/UID] &8[Player] &c- &aGive the player an item in the collection.'
+                - ' &3/Ca Admin ItemCollection Add [DisplayName] &c- &aAdd items to collection.'
+                - ' &3/Ca Admin ItemCollection Delete [DisplayName/UID] &c- &aDelete an item in the collection.'
+                - ' &3/Ca Admin ItemCollection List &c- &aList all items in the collection.'
+                - ' &3/Ca Admin ItemCollection Give [DisplayName/UID] &8[Player] &c- &aGive the player an item in the collection.'
                 - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
             Add: 
                 Help: '{prefix}&cUse help: &e/Ca Admin ItemCollection Add [DisplayName]'

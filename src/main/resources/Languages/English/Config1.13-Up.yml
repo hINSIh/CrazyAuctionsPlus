@@ -462,7 +462,7 @@ Settings:
                 Name: '&7Bidding'
                 Lore:
                 - '&7<--&aAdd &cRemove&7-->'
-                - '&9Your Current Bid: &e$%Bid%'
+                - '&9Your Current Bid: &e$%bid%'
                 - '&9Current Top Bid: &e$%topbid%'
             Bid: #The button for when you want to confirm your bid.
                 Item: 'LIGHT_BLUE_STAINED_GLASS_PANE'
