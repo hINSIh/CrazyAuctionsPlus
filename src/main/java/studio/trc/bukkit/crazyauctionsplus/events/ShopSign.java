@@ -39,6 +39,20 @@ public class ShopSign
                         }
                     }
                 }
+            } else if (version.startsWith("v1_13")) {
+                if (e.getClickedBlock().getType().equals(Material.valueOf("SIGN")) || e.getClickedBlock().getType().equals(Material.valueOf("WALL_SIGN"))) {
+                    Sign sign = (Sign) e.getClickedBlock().getState();
+                    if (sign.getLine(0) != null && sign.getLine(0).equalsIgnoreCase(config.getString("Settings.Shop-Sign.Title-Format"))) {
+                        if (sign.getLine(1) != null) {
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    GUIAction.openViewer(p, Bukkit.getOfflinePlayer(sign.getLine(1)).getUniqueId(), 1);
+                                }
+                            }.runTaskLater(Main.getInstance(), 1);
+                        }
+                    }
+                }
             } else {
                 Material type = e.getClickedBlock().getType();
                 if (type.equals(Material.valueOf("OAK_SIGN")) || type.equals(Material.valueOf("OAK_WALL_SIGN")) ||

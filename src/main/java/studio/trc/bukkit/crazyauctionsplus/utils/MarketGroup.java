@@ -6,38 +6,23 @@ import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.ProtectedConfigurat
 public class MarketGroup
 {
     private final String groupname;
-    private final boolean exist;
-    private final int sellLimit;
-    private final int buyLimit;
-    private final int bidLimit;
     
     private static final ProtectedConfiguration config = Files.CONFIG.getFile();
     
     public MarketGroup(String groupname) {
         this.groupname = groupname;
-        if (config.get("Settings.Permissions.Market.Permission-Groups." + groupname) != null) {
-            exist = true;
-            sellLimit = config.getInt("Settings.Permissions.Market.Permission-Groups." + groupname + ".Sell-Limit");
-            buyLimit = config.getInt("Settings.Permissions.Market.Permission-Groups." + groupname + ".Buy-Limit");
-            bidLimit = config.getInt("Settings.Permissions.Market.Permission-Groups." + groupname + ".Bid-Limit");
-        } else {
-            exist = false;
-            sellLimit = 0;
-            buyLimit = 0;
-            bidLimit = 0;
-        }
     }
     
     public int getSellLimit() {
-        return sellLimit;
+        return config.getInt("Settings.Permissions.Market.Permission-Groups." + groupname + ".Sell-Limit");
     }
     
     public int getBuyLimit() {
-        return buyLimit;
+        return config.getInt("Settings.Permissions.Market.Permission-Groups." + groupname + ".Buy-Limit");
     }
     
     public int getBidLimit() {
-        return bidLimit;
+        return config.getInt("Settings.Permissions.Market.Permission-Groups." + groupname + ".Bid-Limit");
     }
     
     public String getGroupName() {
@@ -45,6 +30,6 @@ public class MarketGroup
     }
     
     public boolean exist() {
-        return exist;
+        return config.get("Settings.Permissions.Market.Permission-Groups." + groupname) != null;
     }
 }

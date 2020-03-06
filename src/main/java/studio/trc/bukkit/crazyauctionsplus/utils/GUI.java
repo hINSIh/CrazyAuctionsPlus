@@ -17,7 +17,8 @@ import org.bukkit.inventory.ItemStack;
 
 import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.Category;
+import studio.trc.bukkit.crazyauctionsplus.events.GUIAction;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.ProtectedConfiguration;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Version;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
@@ -31,6 +32,7 @@ public class GUI
     protected final static Map<UUID, List<Long>> itemUID = new HashMap();
     protected final static Map<UUID, List<Long>> mailUID = new HashMap();
     protected final static Map<UUID, Long> IDs = new HashMap();
+    protected final static Map<UUID, GUIType> openingGUI = new HashMap();
     protected final static CrazyAuctions crazyAuctions = CrazyAuctions.getInstance();
     
     public static void openShop(Player player, ShopType type, Category cat, int page) {
@@ -44,11 +46,11 @@ public class GUI
         if (cat != null) {
             shopCategory.put(player.getUniqueId(), cat);
         } else {
-            shopCategory.put(player.getUniqueId(), Category.NONE);
+            shopCategory.put(player.getUniqueId(), Category.getDefaultCategory());
         }
         for (MarketGoods mg : market.getItems()) {
             List<String> lore = new ArrayList();
-            if (cat.getItems().contains(mg.getItem().getType()) || cat.equals(Category.NONE)) {
+            if ((cat.isWhitelist() ? cat.getAllItemMeta().contains(mg.getItem().getItemMeta()) : !cat.getAllItemMeta().contains(mg.getItem().getItemMeta())) || cat.getItems().contains(mg.getItem().getType()) || cat.equals(Category.getDefaultCategory())) {
                 switch (type) {
                     case BID: {
                         if (mg.getShopType().equals(ShopType.BID)) {
@@ -135,21 +137,26 @@ public class GUI
         int maxPage = PluginControl.getMaxPage(items);
         for (; page > maxPage; page--) {}
         Inventory inv;
+        GUIType guiType;
         switch (type) {
             case ANY: {
                 inv = Bukkit.createInventory(null, 54, PluginControl.color(config.getString("Settings.Main-GUIName") + " #" + page));
+                guiType = GUIType.GLOBALMARKET_MAIN;
                 break;
             }
             case SELL: {
                 inv = Bukkit.createInventory(null, 54, PluginControl.color(config.getString("Settings.Sell-GUIName") + " #" + page));
+                guiType = GUIType.GLOBALMARKET_SELL;
                 break;
             }
             case BUY: {
                 inv = Bukkit.createInventory(null, 54, PluginControl.color(config.getString("Settings.Buy-GUIName") + " #" + page));
+                guiType = GUIType.GLOBALMARKET_BUY;
                 break;
             }
             case BID: {
                 inv = Bukkit.createInventory(null, 54, PluginControl.color(config.getString("Settings.Bid-GUIName") + " #" + page));
+                guiType = GUIType.GLOBALMARKET_BID;
                 break;
             }
             default: {
@@ -208,10 +215,10 @@ public class GUI
             String name = config.getString("Settings.GUISettings.OtherSettings." + o + ".Name");
             List<String> lore = new ArrayList();
             int slot = config.getInt("Settings.GUISettings.OtherSettings." + o + ".Slot");
-            String cName = PluginControl.color(config.getString("Settings.GUISettings.Category-Settings." + shopCategory.get(player.getUniqueId()).getName() + ".Name"));
+//            String cName = PluginControl.color(config.getString("Settings.GUISettings.Category-Settings.Custom-Category." + shopCategory.get(player.getUniqueId()).getName() + ".Name"));
             if (config.contains("Settings.GUISettings.OtherSettings." + o + ".Lore")) {
                 for (String l : config.getStringList("Settings.GUISettings.OtherSettings." + o + ".Lore")) {
-                    lore.add(l.replace("%category%", cName));
+                    lore.add(l.replace("%category%", shopCategory.get(player.getUniqueId()).getDisplayName() != null ? shopCategory.get(player.getUniqueId()).getDisplayName() : shopCategory.get(player.getUniqueId()).getName()));
                 }
                 inv.setItem(slot - 1, PluginControl.makeItem(id, 1, name, lore));
             } else {
@@ -225,13 +232,14 @@ public class GUI
         List<Long> Id = new ArrayList(PluginControl.getMarketPageUIDs(ID, page));
         itemUID.put(player.getUniqueId(), Id);
         player.openInventory(inv);
+        GUIAction.openingGUI.put(player.getUniqueId(), guiType);
     }
     
     public static void openCategories(Player player, ShopType shop) {
         if (FileManager.isBackingUp()) return;
         if (FileManager.isRollingBack()) return;
         PluginControl.updateCacheData();
-        FileManager.ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
+        ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         int size = config.getInt("Settings.GUISettings.Category-Settings.GUI-Size");
         if (size != 54 && size != 45 && size != 36 && size != 27 && size != 18 && size != 9) {
             size = 54;
@@ -240,14 +248,9 @@ public class GUI
         List<String> options = new ArrayList();
         options.add("OtherSettings.Categories-Back");
         options.add("OtherSettings.WhatIsThis.Categories");
-        options.add("Category-Settings.Armor");
-        options.add("Category-Settings.Weapons");
-        options.add("Category-Settings.Tools");
-        options.add("Category-Settings.Food");
-        options.add("Category-Settings.Potions");
-        options.add("Category-Settings.Blocks");
-        options.add("Category-Settings.Other");
-        options.add("Category-Settings.None");
+        for (String option : config.getConfigurationSection("Settings.GUISettings.Category-Settings.Custom-Category").getKeys(false)) {
+            options.add("Category-Settings.Custom-Category." + option);
+        }
         options.add("Category-Settings.ShopType-Category.Selling");
         options.add("Category-Settings.ShopType-Category.Buying");
         options.add("Category-Settings.ShopType-Category.Bidding");
@@ -269,6 +272,7 @@ public class GUI
         }
         shopType.put(player.getUniqueId(), shop);
         player.openInventory(inv);
+        GUIAction.openingGUI.put(player.getUniqueId(), GUIType.CATEGORY);
     }
     
     public static void openPlayersCurrentList(Player player, int page) {
@@ -340,6 +344,7 @@ public class GUI
         List<Long> Id = new ArrayList(PluginControl.getMarketPageUIDs(ID, page));
         itemUID.put(player.getUniqueId(), Id);
         player.openInventory(inv);
+        GUIAction.openingGUI.put(player.getUniqueId(), GUIType.ITEM_LIST);
     }
     
     public static void openPlayersMail(Player player, int page) {
@@ -392,6 +397,7 @@ public class GUI
         List<Long> Id = new ArrayList(PluginControl.getMailPageUIDs(ID, page));
         mailUID.put(player.getUniqueId(), Id);
         player.openInventory(inv);
+        GUIAction.openingGUI.put(player.getUniqueId(), GUIType.ITEM_MAIL);
     }
     
     public static void openBuying(Player player, long uid) {
@@ -440,6 +446,7 @@ public class GUI
         inv.setItem(4, PluginControl.addLore(item.clone(), lore));
         IDs.put(player.getUniqueId(), uid);
         player.openInventory(inv);
+        GUIAction.openingGUI.put(player.getUniqueId(), GUIType.BUYING_ITEM);
     }
     
     public static void openSelling(Player player, long uid) {
@@ -489,6 +496,7 @@ public class GUI
         inv.setItem(4, PluginControl.addLore(item.clone(), lore));
         IDs.put(player.getUniqueId(), uid);
         player.openInventory(inv);
+        GUIAction.openingGUI.put(player.getUniqueId(), GUIType.SELLING_ITEM);
     }
     
     public static void openBidding(Player player, long uid) {
@@ -528,6 +536,7 @@ public class GUI
         
         inv.setItem(4, getBiddingItem(player, uid));
         player.openInventory(inv);
+        GUIAction.openingGUI.put(player.getUniqueId(), GUIType.BIDDING_ITEM);
     }
     
     public static void openViewer(Player player, UUID uuid, int page) {
@@ -599,6 +608,7 @@ public class GUI
         }
         itemUID.put(player.getUniqueId(), new ArrayList(PluginControl.getMarketPageUIDs(ID, page)));
         player.openInventory(inv);
+        GUIAction.openingGUI.put(player.getUniqueId(), GUIType.ITEM_VIEWER);
     }
     
     public static ItemStack getBiddingGlass(Player player, long uid) {
@@ -665,5 +675,70 @@ public class GUI
     
     public static void setShopType(Player player, ShopType type) {
         shopType.put(player.getUniqueId(), type);
+    }
+    
+    public static GUIType getOpeningGUI(Player player) {
+        if (!openingGUI.containsKey(player.getUniqueId())) {
+            return null;
+        }
+        return openingGUI.get(player.getUniqueId());
+    }
+    
+    public static enum GUIType {
+        
+        /**
+         * Global Market: Main GUI.
+         */
+        GLOBALMARKET_MAIN,
+        
+        /**
+         * Global Market: Item Sales GUI.
+         */
+        GLOBALMARKET_SELL,
+        
+        /**
+         * Global Market: Item Acquisition GUI.
+         */
+        GLOBALMARKET_BUY,
+        
+        /**
+         * Global Market: Item Auction GUI.
+         */
+        GLOBALMARKET_BID,
+        
+        /**
+         * Own Item List GUI.
+         */
+        ITEM_LIST,
+        
+        /**
+         * Single player product GUI.
+         */
+        ITEM_VIEWER,
+        
+        /**
+         * Item mail GUI.
+         */
+        ITEM_MAIL,
+        
+        /**
+         * Category GUI.
+         */
+        CATEGORY,
+        
+        /**
+         * Buying GUI for an item.
+         */
+        SELLING_ITEM,
+        
+        /**
+         * GUI for selling an item.
+         */
+        BUYING_ITEM,
+        
+        /**
+         * Auction GUI for an item
+         */
+        BIDDING_ITEM
     }
 }

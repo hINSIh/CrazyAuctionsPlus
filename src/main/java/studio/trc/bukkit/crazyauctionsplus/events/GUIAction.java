@@ -1,6 +1,6 @@
 package studio.trc.bukkit.crazyauctionsplus.events;
 
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.Category;
+import studio.trc.bukkit.crazyauctionsplus.utils.Category;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
 import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
@@ -19,6 +19,7 @@ import studio.trc.bukkit.crazyauctionsplus.currency.CurrencyManager;
 import studio.trc.bukkit.crazyauctionsplus.Main;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,7 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.lang.reflect.InvocationTargetException;
-import org.bukkit.OfflinePlayer;
 
 public class GUIAction
     extends GUI
@@ -47,6 +47,9 @@ public class GUIAction
     
     @EventHandler
     public void onInvClose(InventoryCloseEvent e) {
+        if (openingGUI.containsKey(e.getPlayer().getUniqueId())) {
+            openingGUI.remove(e.getPlayer().getUniqueId());
+        }
         ProtectedConfiguration config = Files.CONFIG.getFile();
         Inventory inv = e.getInventory();
         Player player = (Player) e.getPlayer();
@@ -59,22 +62,27 @@ public class GUIAction
     
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
+        if (!openingGUI.containsKey(e.getWhoClicked().getUniqueId())) {
+            return;
+        }
+        e.setCancelled(true);
         ProtectedConfiguration config = Files.CONFIG.getFile();
         GlobalMarket market = GlobalMarket.getMarket();
         Player player = (Player) e.getWhoClicked();
         Inventory inv = e.getInventory();
         if (inv != null) {
-            if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Categories")))) {
-                e.setCancelled(true);
+            if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Categories"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.CATEGORY)) {
                 int slot = e.getRawSlot();
                 if (slot <= inv.getSize()) {
                     if (e.getCurrentItem() != null) {
                         ItemStack item = e.getCurrentItem();
                         if (item.hasItemMeta()) {
                             if (item.getItemMeta().hasDisplayName()) {
-                                for (Category cat : Category.values()) {
-                                    if (item.getItemMeta().getDisplayName().equals(PluginControl.color(config.getString("Settings.GUISettings.Category-Settings." + cat.getName() + ".Name")))) {
-                                        openShop(player, shopType.get(player.getUniqueId()), cat, 1);
+                                for (String name : config.getConfigurationSection("Settings.GUISettings.Category-Settings.Custom-Category").getKeys(false)) {
+                                    Category category = Category.getModule(config.getString("Settings.GUISettings.Category-Settings.Custom-Category." + name + ".Category-Module"));
+                                    if (category == null) continue;
+                                    if (item.getItemMeta().getDisplayName().equals(PluginControl.color(config.getString("Settings.GUISettings.Category-Settings.Custom-Category." + name + ".Name")))) {
+                                        openShop(player, shopType.get(player.getUniqueId()), category, 1);
                                         playClick(player);
                                         return;
                                     }
@@ -113,8 +121,7 @@ public class GUIAction
                     }
                 }
             }
-            if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Bidding-On-Item")))) {
-                e.setCancelled(true);
+            if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Bidding-On-Item"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.BIDDING_ITEM)) {
                 int slot = e.getRawSlot();
                 if (slot <= inv.getSize()) {
                     if (e.getCurrentItem() != null) {
@@ -141,7 +148,7 @@ public class GUIAction
                                         player.sendMessage(Messages.getMessage("Bid-More-Money"));
                                         return;
                                     }
-                                    if (!mg.getTopBidder().equalsIgnoreCase("None")) {
+                                    if (!topBidder.equalsIgnoreCase("None")) {
                                         String[] oldTopBidder = mg.getTopBidder().split(":");
                                         CurrencyManager.addMoney(Bukkit.getOfflinePlayer(UUID.fromString(oldTopBidder[1])), mg.getPrice());
                                     }
@@ -191,8 +198,12 @@ public class GUIAction
                 e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Player-Viewer-GUIName"))) ||
                 e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Sell-GUIName"))) ||
                 e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Buy-GUIName"))) ||
-                e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Bid-GUIName")))) {
-                e.setCancelled(true);
+                e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Bid-GUIName"))) ||
+                    openingGUI.get(player.getUniqueId()).equals(GUIType.GLOBALMARKET_MAIN) ||
+                    openingGUI.get(player.getUniqueId()).equals(GUIType.GLOBALMARKET_SELL) ||
+                    openingGUI.get(player.getUniqueId()).equals(GUIType.GLOBALMARKET_BID) ||
+                    openingGUI.get(player.getUniqueId()).equals(GUIType.GLOBALMARKET_BUY) ||
+                    openingGUI.get(player.getUniqueId()).equals(GUIType.ITEM_VIEWER)) {
                 int slot = e.getRawSlot();
                 if (slot <= inv.getSize()) {
                     if (e.getCurrentItem() != null) {
@@ -439,8 +450,7 @@ public class GUIAction
                 }
             }
         }
-        if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Buying-Item")))) {
-            e.setCancelled(true);
+        if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Buying-Item"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.BUYING_ITEM)) {
             int slot = e.getRawSlot();
             if (slot <= inv.getSize()) {
                 if (e.getCurrentItem() != null) {
@@ -501,8 +511,7 @@ public class GUIAction
                 }
             }
         }
-        if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Selling-Item")))) {
-            e.setCancelled(true);
+        if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Selling-Item"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.SELLING_ITEM)) {
             int slot = e.getRawSlot();
             if (slot <= inv.getSize()) {
                 if (e.getCurrentItem() != null) {
@@ -555,8 +564,7 @@ public class GUIAction
                 }
             }
         }
-        if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Player-Items-List")))) {
-            e.setCancelled(true);
+        if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Player-Items-List"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.ITEM_LIST)) {
             int slot = e.getRawSlot();
             if (slot <= inv.getSize()) {
                 if (e.getCurrentItem() != null) {
@@ -675,8 +683,7 @@ public class GUIAction
                 }
             }
         }
-        if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Player-Items-Mail")))) {
-            e.setCancelled(true);
+        if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Player-Items-Mail"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.ITEM_MAIL)) {
             int slot = e.getRawSlot();
             if (slot <= inv.getSize()) {
                 if (e.getCurrentItem() != null) {

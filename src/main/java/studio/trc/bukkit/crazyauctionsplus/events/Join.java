@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.*;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.Category;
+import studio.trc.bukkit.crazyauctionsplus.utils.Category;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
 
@@ -21,7 +21,7 @@ public class Join
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        GUIAction.setCategory(player, Category.NONE);
+        GUIAction.setCategory(player, Category.getDefaultCategory());
         GUIAction.setShopType(player, ShopType.ANY);
         if (!Files.CONFIG.getFile().getBoolean("Settings.Join-Message")) return;
         new Thread(() -> {

@@ -3,6 +3,8 @@ English:
     Reload: '{prefix}&aAll configurations and databases have been reloaded.'
     Reload-Config: '{prefix}&aAll settings of Config.yml have been reloaded.'
     Reload-Messages: '{prefix}&aAll language data for Messages.yml has been reloaded.'
+    Reload-Category: '{prefix}&aAll module data for Category.yml has been reloaded.'
+    Reload-ItemCollection: '{prefix}&aAll collection data for ItemCollection.yml has benn reloaded.'
     Reload-Database: '{prefix}&aAll databases have been reloaded.'
     Reload-Market: '{prefix}&aThe market database has all been reloaded.'
     Reload-PlayerData: '{prefix}&aThe player database has all been reloaded.'
@@ -70,7 +72,7 @@ English:
     Date-Format: 'yyyy/MM/dd HH:mm:ss'
     Help-Menu:
         - '&e▬▬▬▬▬▬▬▬▬▬&6CrazyAuctions+ Help&e▬▬▬▬▬▬▬▬▬▬'
-        - ' &3/Ca View <Player> &c- &aSee what a player is selling.'
+        - ' &3/Ca View <Player> &c- &aView all items for one player.'
         - ' &3/Ca Sell <Price> &8[Amount of items] &c- &aLet the items in your hand on the market as sold.'
         - ' &3/Ca Bid <Price> &8[Amount of items] &c- &aLet the items in hand be put on the market in the form of an auction.'
         - ' &3/Ca Buy <Reward> &8[Amount of items] [Item name] &c- &aAcquire items in your hands or specific items in the market.'
@@ -87,6 +89,7 @@ English:
         - ' &3/Ca Admin RollBack [DB File] &c- &aRetrieve all currently stored data (excluding configuration files).'
         - ' &3/Ca Admin Info [Player] &c- &aView information about a player.'
         - ' &3/Ca Admin Synchronize &c- &aSync all merchandise and player data stored in the old market to the Plus version.'
+        - ' &3/Ca Admin ItemCollection &c- &aCollection of management items.'
         - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
     Admin-Command:
         Info: 
@@ -117,6 +120,33 @@ English:
             Failed: '{prefix}&cRoll Back failed with error: &e%error% .'
             Successfully: '{prefix}&aBackup file &e%file% &ahas been run and all stored data has been backed up.'
             Backup-Not-Exist: '{prefix}&cBackup file &e%file% &cnot exist.'
+        ItemCollection:
+            Help:
+                - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+                - ' &3/Ca Admin ItemColletion Add [DisplayName] &c- &aAdd items to collection.'
+                - ' &3/Ca Admin ItemColletion Delete [DisplayName/UID] &c- &aDelete an item in the collection.'
+                - ' &3/Ca Admin ItemColletion List &c- &aList all items in the collection.'
+                - ' &3/Ca Admin ItemColletion Give [DisplayName/UID] &8[Player] &c- &aGive the player an item in the collection.'
+                - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+            Add: 
+                Help: '{prefix}&cUse help: &e/Ca Admin ItemCollection Add [DisplayName]'
+                Successfully: '{prefix}&aItem &r%item% &aadded to collection.'
+                Doesnt-Have-Item-In-Hand: '{prefix}&cYou must have an item in your hand.'
+                Already-Exist: '{prefix}&eItem already exists in the collection, please do not add it repeatedly.'
+            Delete: 
+                Help: '{prefix}&cUse help: &e/Ca Admin ItemCollection Remove [DisplayName/UID]'
+                Successfully: '{prefix}&aSuccessfully deleted item &r%item%.'
+                Item-Not-Exist: '{prefix}&cItem &e%item% &cdoes not exist, please use &3/Ca Admin ItemCollection List &cto list all items.'
+            List:
+                List-Format: '&7(&f&l%uid%&7) &a%item%'
+                Empty-Collection: '{prefix}&aThe collection list is empty.'
+                Messages:
+                    - '{prefix}&aCollection list: &r%list%'
+            Give: 
+                Help: '{prefix}&cUse help: &e/Ca Admin ItemCollection Give [DisplayName/UID] &8[Player]'
+                Successfully: '{prefix}&aItem &r%item% &ahas been given to player &c%player%'
+                Player-Offline: '{prefix}&cPlayer &e%player% &cis offline and cannot give items.'
+                Item-Not-Exist: '{prefix}&cItem &e%item% &cdoes not exist, please use &3/Ca Admin ItemCollection List &cto list all items.'
     SellingItemLore: #The lore on items that are being sold.
         - '&7▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
         - '&b&lItems for sale'
@@ -198,6 +228,8 @@ Chinese:
     Reload: '{prefix}&a所有的配置与数据库已全部重新加载。'
     Reload-Config: '{prefix}&aConfig.yml 的所有设置已全部重新加载。'
     Reload-Messages: '{prefix}&aMessages.yml 的所有语言数据已全部重新加载。'
+    Reload-Category: '{prefix}&aCategory.yml 的所有分类模块已全部重新加载。'
+    Reload-ItemCollection: '{prefix}&aItemCollection.yml 的所有收藏物品已全部重新加载。'
     Reload-Database: '{prefix}&a所有数据库已全部重新加载。'
     Reload-Market: '{prefix}&a市场数据库已全部重新加载。'
     Reload-PlayerData: '{prefix}&a玩家数据库已全部重新加载。'
@@ -282,6 +314,7 @@ Chinese:
         - ' &3/Ca Admin RollBack [备份文件] &c- &a将当前所有的储存数据进行回档（不包含配置文件）'
         - ' &3/Ca Admin Info [玩家] &c- &a查看一名玩家的相关数据'
         - ' &3/Ca Admin Synchronize &c- &a同步所有旧市场存贮的商品及玩家数据到Plus版本'
+        - ' &3/Ca Admin ItemCollection &c- &a管理物品收藏'
         - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
     Admin-Command:
         Info: 
@@ -312,6 +345,33 @@ Chinese:
             Failed: '{prefix}&c回档失败， 遇到错误: &e%error% 。'
             Successfully: '{prefix}&a已运行备份文件 &e%file% &a， 所有储存数据已回档。'
             Backup-Not-Exist: '{prefix}&c备份文件 &e%file% &c不存在。'
+        ItemCollection:
+            Help:
+                - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+                - ' &3/Ca Admin ItemColletion Add [名称] &c- &a将手上的物品添加到收藏'
+                - ' &3/Ca Admin ItemColletion Delete [名称/UID] &c- &a删除收藏中的某个物品'
+                - ' &3/Ca Admin ItemColletion List &c- &a列出所有收藏的物品'
+                - ' &3/Ca Admin ItemColletion Give [名称/UID] &8[玩家] &c- &a将收藏的物品给予玩家'
+                - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+            Add: 
+                Help: '{prefix}&c正确使用方式: &e/Ca Admin ItemCollection Add [名称]'
+                Successfully: '{prefix}&a已将物品 &r%item% &a添加到收藏.'
+                Doesnt-Have-Item-In-Hand: '{prefix}&c你需要将需要执行操作的物品拿在手上！'
+                Already-Exist: '{prefix}&e收藏中已存在这个物品了， 请不要重复添加。'
+            Delete: 
+                Help: '{prefix}&c正确使用方式: &e/Ca Admin ItemCollection Remove [名称/UID]'
+                Successfully: '{prefix}&a成功删除物品 &r%item% &a。'
+                Item-Not-Exist: '{prefix}&c物品 &e%item% &c不存在， 请使用&3/Ca Admin ItemCollection List&c列出所有物品。'
+            List:
+                List-Format: '&7(&f&l%uid%&7) &a%item%'
+                Empty-Collection: '{prefix}&a收藏列表是空的。'
+                Messages:
+                    - '{prefix}&a收藏列表: &r%list%'
+            Give: 
+                Help: '{prefix}&c正确使用方式: &e/Ca Admin ItemCollection Give [名称/UID] &8[玩家]'
+                Successfully: '{prefix}&a已将物品 &r%item% &a给予玩家 &c%player%'
+                Player-Offline: '{prefix}&c玩家 &e%player% &c离线， 无法给予物品。'
+                Item-Not-Exist: '{prefix}&c物品 &e%item% &c不存在， 请使用&3/Ca Admin ItemCollection List&c列出所有物品。'
     SellingItemLore:
         - '&7▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
         - '&b&l商品出售'

@@ -4,7 +4,7 @@ Settings:
     Sell-GUIName: '&8&lGlobal Market | &b&lSelling&c&l' #Name of the Selling Items GUI.
     Buy-GUIName: '&8&lGlobal Market | &d&lBuying&c&l' #Name of the Buying Items GUI.
     Bid-GUIName: '&8&lGlobal Market | &5&lBidding&c&l' #Name of the Bidding Items GUI.
-    Player-Items-List: '&8&lItems List&c&l' #The Name of the Player items list GUI.
+    Player-Items-List: '&8&lItems List' #The Name of the Player items list GUI.
     Player-Items-Mail: '&8&lMail&c&l' #Name of the Player Item Mail GUI.
     Player-Viewer-GUIName: '&8&lViewing other players'' items&c&l' #Name of the Viewer GUI.
     Buying-Item: '&8Purchase Item: Are You Sure?' #Name of the Buying GUI.
@@ -163,70 +163,80 @@ Settings:
                     Lore:
                     - '&7This category contains'
                     - '&7All items currently.'
-            Armor:
-                Item: 'DIAMOND_CHESTPLATE'
-                Toggle: true
-                Slot: 11
-                Name: '&6&lArmor'
-                Lore:
-                - '&7This category contains all'
-                - '&7armor that is currently.'
-            Weapons:
-                Item: 'DIAMOND_SWORD'
-                Toggle: true
-                Slot: 12
-                Name: '&6&lWeapons'
-                Lore:
-                - '&7This category contains all'
-                - '&7weapons that are currently.'
-            Tools:
-                Item: 'DIAMOND_PICKAXE'
-                Toggle: true
-                Slot: 13
-                Name: '&6&lTools'
-                Lore:
-                - '&7This category contains all'
-                - '&7tools that are currently.'
-            Food:
-                Item: 'ENCHANTED_GOLDEN_APPLE'
-                Toggle: true
-                Slot: 14
-                Name: '&6&lFood'
-                Lore:
-                - '&7This category contains all'
-                - '&7food that is currently.'
-            Potions:
-                Item: 'POTION'
-                Toggle: true
-                Slot: 15
-                Name: '&6&lPotions'
-                Lore:
-                - '&7This category contains all'
-                - '&7potions that are currently.'
-            Blocks:
-                Item: 'GRASS_BLOCK'
-                Toggle: true
-                Slot: 16
-                Name: '&6&lBlocks'
-                Lore:
-                - '&7This category contains all'
-                - '&7blocks that are currently.'
-            Other:
-                Item: 'LAVA_BUCKET'
-                Toggle: true
-                Slot: 17
-                Name: '&6&lOthers'
-                Lore:
-                - '&7This category contains all'
-                - '&7the other items currently.'
-            None:
-                Item: 'COMPASS'
-                Toggle: true
-                Slot: 23
-                Name: '&3&lNone Categories'
-                Lore:
-                - '&7This category contains all'
-                - '&7items currently being sold.'
+            Custom-Category:
+                #You can create a new category button in the following style.
+                Armor:
+                    Item: 'DIAMOND_CHESTPLATE'
+                    Toggle: true
+                    Category-Module: Armor
+                    Slot: 11
+                    Name: '&6&lArmor'
+                    Lore:
+                    - '&7This category contains all'
+                    - '&7armor that is currently.'
+                Weapons:
+                    Item: 'DIAMOND_SWORD'
+                    Toggle: true
+                    Category-Module: Weapons
+                    Slot: 12
+                    Name: '&6&lWeapons'
+                    Lore:
+                    - '&7This category contains all'
+                    - '&7weapons that are currently.'
+                Tools:
+                    Item: 'DIAMOND_PICKAXE'
+                    Toggle: true
+                    Category-Module: Tools
+                    Slot: 13
+                    Name: '&6&lTools'
+                    Lore:
+                    - '&7This category contains all'
+                    - '&7tools that are currently.'
+                Food:
+                    Item: 'ENCHANTED_GOLDEN_APPLE'
+                    Toggle: true
+                    Category-Module: Foods
+                    Slot: 14
+                    Name: '&6&lFood'
+                    Lore:
+                    - '&7This category contains all'
+                    - '&7food that is currently.'
+                Potions:
+                    Item: 'POTION'
+                    Toggle: true
+                    Category-Module: Potions
+                    Slot: 15
+                    Name: '&6&lPotions'
+                    Lore:
+                    - '&7This category contains all'
+                    - '&7potions that are currently.'
+                Blocks:
+                    Item: 'GRASS_BLOCK'
+                    Toggle: true
+                    Category-Module: Blocks
+                    Slot: 16
+                    Name: '&6&lBlocks'
+                    Lore:
+                    - '&7This category contains all'
+                    - '&7blocks that are currently.'
+                Other:
+                    Item: 'LAVA_BUCKET'
+                    Toggle: true
+                    Category-Module: Others
+                    Slot: 17
+                    Name: '&6&lOthers'
+                    Lore:
+                    - '&7This category contains all'
+                    - '&7the other items currently.'
+                None:
+                    Item: 'COMPASS'
+                    Toggle: true
+                    Category-Module: None
+                    Slot: 23
+                    Name: '&3&lNone Categories'
+                    Lore:
+                    - '&7This category contains all'
+                    - '&7items currently being sold.'
         OtherSettings: #Other Settings for the GUIs.
             Commoditys: #The button for your current items.
                 Item: 'DIAMOND' #The item that this button is.
@@ -529,6 +539,12 @@ Settings:
                     PlayerData:
                         Permission: crazyauctionsplus.command.reload.playerdata
                         Default: false
+                    Category:
+                        Permission: crazyauctionsplus.command.reload.category
+                        Default: false
+                    ItemCollection:
+                        Permission: crazyauctionsplus.command.reload.itemcollection
+                        Default: false
             #Permissions to use /ca gui
             Gui: 
                 Permission: crazyauctionsplus.command.gui
@@ -582,3 +598,19 @@ Settings:
                     Info:
                         Permission: crazyauctionsplus.command.admin.info
                         Default: false
+                    ItemCollection:
+                        Permission: crazyauctionsplus.command.admin.itemcollection
+                        Default: false
+                        SubCommands:
+                            Add: 
+                                Permission: crazyauctionsplus.command.admin.itemcollection.add
+                                Default: false
+                            Delete: 
+                                Permission: crazyauctionsplus.command.admin.itemcollection.delete
+                                Default: false
+                            List:
+                                Permission: crazyauctionsplus.command.admin.itemcollection.list
+                                Default: false
+                            Give:
+                                Permission: crazyauctionsplus.command.admin.itemcollection.give
+                                Default: false

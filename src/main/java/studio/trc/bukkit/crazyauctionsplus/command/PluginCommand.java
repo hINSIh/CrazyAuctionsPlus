@@ -13,7 +13,7 @@ import studio.trc.bukkit.crazyauctionsplus.currency.CurrencyManager;
 import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
 import studio.trc.bukkit.crazyauctionsplus.database.engine.MySQLEngine;
 import studio.trc.bukkit.crazyauctionsplus.database.engine.SQLiteEngine;
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.Category;
+import studio.trc.bukkit.crazyauctionsplus.utils.Category;
 import studio.trc.bukkit.crazyauctionsplus.utils.CrazyAuctions;
 import studio.trc.bukkit.crazyauctionsplus.utils.FileManager;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
@@ -38,6 +38,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import studio.trc.bukkit.crazyauctionsplus.utils.ItemCollection;
 
 public class PluginCommand
     implements CommandExecutor, TabCompleter
@@ -114,6 +115,20 @@ public class PluginCommand
                                 player.closeInventory();
                             }
                             sender.sendMessage(Messages.getMessage("Reload-PlayerData"));
+                        } else if (args[1].equalsIgnoreCase("category")) {
+                            if (!PluginControl.hasCommandPermission(sender, "Reload.SubCommands.Category", true)) return true;
+                            PluginControl.reload(ReloadType.CATEGORY);
+                            for (Player player : Bukkit.getOnlinePlayers()) {
+                                player.closeInventory();
+                            }
+                            sender.sendMessage(Messages.getMessage("Reload-Category"));
+                        } else if (args[1].equalsIgnoreCase("itemcollection")) {
+                            if (!PluginControl.hasCommandPermission(sender, "Reload.SubCommands.ItemCollection", true)) return true;
+                            PluginControl.reload(ReloadType.ITEMCOLLECTION);
+                            for (Player player : Bukkit.getOnlinePlayers()) {
+                                player.closeInventory();
+                            }
+                            sender.sendMessage(Messages.getMessage("Reload-ItemCollection"));
                         } else {
                             PluginControl.reload(ReloadType.ALL);
                             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -259,6 +274,178 @@ public class PluginCommand
                             }
                             sender.sendMessage(Messages.getMessage("Admin-Command.Synchronize.Starting"));
                             FileManager.synchronize(sender);
+                        } else if (args[1].equalsIgnoreCase("itemcollection")) {
+                            if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.ItemCollection", true)) return true;
+                            if (args.length == 2) {
+                                for (String message : Messages.getMessageList("Admin-Command.ItemCollection.Help")) {
+                                    sender.sendMessage(message);
+                                }
+                            } else if (args.length >= 3) {
+                                if (args[2].equalsIgnoreCase("add")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.ItemCollection.SubCommands.Add", true)) return true;
+                                    if (args.length <= 3) {
+                                        sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Add.Help"));
+                                        return true;
+                                    } else {
+                                        if (sender instanceof Player) {
+                                            Player player = (Player) sender;
+                                            if (player.getItemInHand() == null) {
+                                                sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Add.Doesnt-Have-Item-In-Hand"));
+                                                return true;
+                                            }
+                                            if (ItemCollection.addItem(player.getItemInHand(), args[3])) {
+                                                Map<String, String> map = new HashMap();
+                                                map.put("%item%", args[3]);
+                                                sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Add.Successfully", map));
+                                            } else {
+                                                sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Add.Already-Exist"));
+                                            }
+                                        } else {
+                                            sender.sendMessage(Messages.getMessage("Players-Only"));
+                                            return true;
+                                        }
+                                    }
+                                } else if (args[2].equalsIgnoreCase("delete") || args[2].equalsIgnoreCase("remove")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.ItemCollection.SubCommands.Delete", true)) return true;
+                                    if (args.length <= 3) {
+                                        sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Delete.Help"));
+                                        return true;
+                                    } else {
+                                        try {
+                                            long uid = Long.valueOf(args[3]);
+                                            for (ItemCollection ic : ItemCollection.getCollection()) {
+                                                if (ic.getUID() == uid) {
+                                                    Map<String, String> map = new HashMap();
+                                                    map.put("%item%", ic.getDisplayName());
+                                                    ItemCollection.deleteItem(uid);
+                                                    sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Delete.Successfully", map));
+                                                    return true;
+                                                }
+                                            }
+                                            Map<String, String> map = new HashMap();
+                                            map.put("%item%", args[3]);
+                                            sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Delete.Item-Not-Exist", map));
+                                        } catch (NumberFormatException ex) {
+                                            String displayName = args[3];
+                                            for (ItemCollection ic : ItemCollection.getCollection()) {
+                                                if (ic.getDisplayName().equalsIgnoreCase(displayName)) {
+                                                    Map<String, String> map = new HashMap();
+                                                    map.put("%item%", ic.getDisplayName());
+                                                    ItemCollection.deleteItem(displayName);
+                                                    sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Delete.Successfully", map));
+                                                    return true;
+                                                }
+                                            }
+                                            Map<String, String> map = new HashMap();
+                                            map.put("%item%", args[3]);
+                                            sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Delete.Item-Not-Exist", map));
+                                        }
+                                    }
+                                } else if (args[2].equalsIgnoreCase("list")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.ItemCollection.SubCommands.List", true)) return true;
+                                    if (ItemCollection.getCollection().isEmpty()) {
+                                        sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.List.Empty-Collection"));
+                                        return true;
+                                    } else {
+                                        String format = Messages.getMessage("Admin-Command.ItemCollection.List.List-Format");
+                                        List<String> list = new ArrayList();
+                                        for (ItemCollection collection : ItemCollection.getCollection()) {
+                                            list.add(format.replace("%uid%", String.valueOf(collection.getUID())).replace("%item%", collection.getDisplayName()));
+                                        }
+                                        for (String message : Messages.getMessageList("Admin-Command.ItemCollection.List.Messages")) {
+                                            sender.sendMessage(message.replace("%list%", list.toString().substring(1, list.toString().length() - 1)));
+                                        }
+                                    }
+                                } else if (args[2].equalsIgnoreCase("give")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.ItemCollection.SubCommands.Give", true)) return true;
+                                    if (args.length == 3) {
+                                        sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Help"));
+                                        return true;
+                                    } else if (args.length == 4) {
+                                        if (sender instanceof Player) {
+                                            Player player = (Player) sender;
+                                            try {
+                                                long uid = Long.valueOf(args[3]);
+                                                for (ItemCollection ic : ItemCollection.getCollection()) {
+                                                    if (ic.getUID() == uid) {
+                                                        Map<String, String> map = new HashMap();
+                                                        map.put("%item%", ic.getDisplayName());
+                                                        map.put("%player%", player.getName());
+                                                        player.getInventory().addItem(ic.getItem());
+                                                        sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Successfully", map));
+                                                        return true;
+                                                    }
+                                                }
+                                                Map<String, String> map = new HashMap();
+                                                map.put("%item%", args[3]);
+                                                sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Item-Not-Exist", map));
+                                            } catch (NumberFormatException ex) {
+                                                String displayName = args[3];
+                                                for (ItemCollection ic : ItemCollection.getCollection()) {
+                                                    if (ic.getDisplayName().equalsIgnoreCase(displayName)) {
+                                                        Map<String, String> map = new HashMap();
+                                                        map.put("%item%", ic.getDisplayName());
+                                                        map.put("%player%", player.getName());
+                                                        player.getInventory().addItem(ic.getItem());
+                                                        sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Successfully", map));
+                                                        return true;
+                                                    }
+                                                }
+                                                Map<String, String> map = new HashMap();
+                                                map.put("%item%", args[3]);
+                                                sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Item-Not-Exist", map));
+                                            }
+                                        } else {
+                                            sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Help"));
+                                            return true;
+                                        }
+                                    } else if (args.length >= 5) {
+                                        Player player = Bukkit.getPlayer(args[4]);
+                                        if (player == null) {
+                                            Map<String, String> map = new HashMap();
+                                            map.put("%player%", args[4]);
+                                            sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Player-Offline", map));
+                                            return true;
+                                        } else {
+                                            try {
+                                                long uid = Long.valueOf(args[3]);
+                                                for (ItemCollection ic : ItemCollection.getCollection()) {
+                                                    if (ic.getUID() == uid) {
+                                                        Map<String, String> map = new HashMap();
+                                                        map.put("%item%", ic.getDisplayName());
+                                                        map.put("%player%", player.getName());
+                                                        player.getInventory().addItem(ic.getItem());
+                                                        sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Successfully", map));
+                                                        return true;
+                                                    }
+                                                }
+                                                Map<String, String> map = new HashMap();
+                                                map.put("%item%", args[3]);
+                                                sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Item-Not-Exist", map));
+                                            } catch (NumberFormatException ex) {
+                                                String displayName = args[3];
+                                                for (ItemCollection ic : ItemCollection.getCollection()) {
+                                                    if (ic.getDisplayName().equalsIgnoreCase(displayName)) {
+                                                        Map<String, String> map = new HashMap();
+                                                        map.put("%item%", ic.getDisplayName());
+                                                        map.put("%player%", player.getName());
+                                                        player.getInventory().addItem(ic.getItem());
+                                                        sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Successfully", map));
+                                                        return true;
+                                                    }
+                                                }
+                                                Map<String, String> map = new HashMap();
+                                                map.put("%item%", args[3]);
+                                                sender.sendMessage(Messages.getMessage("Admin-Command.ItemCollection.Give.Item-Not-Exist", map));
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    for (String message : Messages.getMessageList("Admin-Command.ItemCollection.Help")) {
+                                        sender.sendMessage(message);
+                                    }
+                                }
+                            }
                         } else {
                             for (String message : Messages.getMessageList("Admin-Menu")) {
                                 sender.sendMessage(message);
@@ -277,24 +464,24 @@ public class PluginCommand
                     if (args.length == 1) {
                         if (Files.CONFIG.getFile().getBoolean("Settings.Category-Page-Opens-First")) {
                             GUIAction.setShopType(player, ShopType.ANY);
-                            GUIAction.setCategory(player, Category.NONE);
+                            GUIAction.setCategory(player, Category.getDefaultCategory());
                             GUIAction.openCategories(player, ShopType.ANY);
                         } else {
-                            GUIAction.openShop(player, ShopType.ANY, Category.NONE, 1);
+                            GUIAction.openShop(player, ShopType.ANY, Category.getDefaultCategory(), 1);
                         }
                         return true;
                     } else if (args.length == 2) {
                         if (args[1].equalsIgnoreCase("sell")) {
-                            GUIAction.openShop(player, ShopType.SELL, Category.NONE, 1);
+                            GUIAction.openShop(player, ShopType.SELL, Category.getDefaultCategory(), 1);
                             return true;
                         } else if (args[1].equalsIgnoreCase("buy")) {
-                            GUIAction.openShop(player, ShopType.BUY, Category.NONE, 1);
+                            GUIAction.openShop(player, ShopType.BUY, Category.getDefaultCategory(), 1);
                             return true;
                         } else if (args[1].equalsIgnoreCase("bid")) {
-                            GUIAction.openShop(player, ShopType.BID, Category.NONE, 1);
+                            GUIAction.openShop(player, ShopType.BID, Category.getDefaultCategory(), 1);
                             return true;
                         } else {
-                            GUIAction.openShop(player, ShopType.ANY, Category.NONE, 1);
+                            GUIAction.openShop(player, ShopType.ANY, Category.getDefaultCategory(), 1);
                             return true;
                         }
                     } else if (args.length >= 3) {
@@ -755,7 +942,7 @@ public class PluginCommand
         } else if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("reload") && PluginControl.hasCommandPermission(sender, "Reload", false)) {
                 List<String> list = new ArrayList();
-                for (String text : new String[]{"all", "database", "config", "messages", "market", "playerdata"}) {
+                for (String text : new String[]{"all", "database", "config", "messages", "market", "playerdata", "category", "itemcollection"}) {
                     if (text.toLowerCase().startsWith(args[1].toLowerCase())) {
                         list.add(text);
                     }
@@ -782,9 +969,50 @@ public class PluginCommand
                         }
                         return list;
                     }
+                    if (args[1].equalsIgnoreCase("itemcollection") && PluginControl.hasCommandPermission(sender, "Admin.SubCommands.ItemCollection", false)) {
+                        if (args.length == 3) {
+                            List<String> list = new ArrayList();
+                            for (String text : new String[]{"help", "add", "delete", "give", "list"}) {
+                                if (text.toLowerCase().startsWith(args[2].toLowerCase())) {
+                                    list.add(text);
+                                }
+                            }
+                            return list;
+                        } else if (args.length >= 4) {
+                            if (args[2].equalsIgnoreCase("delete")) {
+                                List<String> list = new ArrayList();
+                                for (ItemCollection ic : ItemCollection.getCollection()) {
+                                    if (ic.getDisplayName().toLowerCase().startsWith(args[3].toLowerCase())) {
+                                        list.add(ic.getDisplayName());
+                                    }
+                                }
+                                return list;
+                            } else if (args[2].equalsIgnoreCase("give")) {
+                                if (args.length == 4) {
+                                    List<String> list = new ArrayList();
+                                    for (ItemCollection ic : ItemCollection.getCollection()) {
+                                        if (ic.getDisplayName().toLowerCase().startsWith(args[3].toLowerCase())) {
+                                            list.add(ic.getDisplayName());
+                                        }
+                                    }
+                                    return list;
+                                } else {
+                                    List<String> list = new ArrayList();
+                                    for (Player p : Bukkit.getOnlinePlayers()) {
+                                        if (p.getName().toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
+                                            list.add(p.getName());
+                                        }
+                                    }
+                                    return list;
+                                }
+                            } else {
+                                return new ArrayList();
+                            }
+                        }
+                    }
                 }
                 List<String> list = new ArrayList();
-                for (String text : new String[]{"backup", "rollback", "info", "synchronize"}) {
+                for (String text : new String[]{"backup", "rollback", "info", "synchronize", "itemcollection"}) {
                     if (text.toLowerCase().startsWith(args[1].toLowerCase())) {
                         list.add(text);
                     }

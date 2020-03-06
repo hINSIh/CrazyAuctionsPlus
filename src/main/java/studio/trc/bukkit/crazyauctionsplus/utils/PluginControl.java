@@ -767,7 +767,6 @@ public class PluginControl {
                         SQLiteStorage.cache.clear();
                         SQLiteMarket.getInstance().reloadData();
                     } else {
-//                        fm.reloadDatabaseFile();
                         YamlStorage.cache.clear();
                         YamlMarket.getInstance().reloadData();
                     }
@@ -862,6 +861,14 @@ public class PluginControl {
                     }
                     return true;
                 }
+                case CATEGORY: {
+                    fm.reloadCategoryFile();
+                    return true;
+                }
+                case ITEMCOLLECTION: {
+                    fm.reloadItemCollectionFile();
+                    return true;
+                }
                 default: {
                     return false;
                 }
@@ -892,6 +899,16 @@ public class PluginControl {
          * Messages.yml
          */
         MESSAGES,
+        
+        /**
+         * Category.yml
+         */
+        CATEGORY,
+        
+        /**
+         * ItemCollection.yml
+         */
+        ITEMCOLLECTION,
         
         /**
          * Refers to MySQL, SQLite connections, including loaded cached data.

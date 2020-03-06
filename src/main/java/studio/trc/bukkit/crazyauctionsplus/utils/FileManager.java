@@ -487,6 +487,64 @@ public class FileManager {
         GlobalMarket.getMarket().reloadData();
     }
     
+    public void reloadCategoryFile() {
+        Files file = Files.CATEGORY;
+        saveResource(file);
+        File newFile = new File(main.getDataFolder(), file.getFileLocation());
+        try (Reader Config = new InputStreamReader(new FileInputStream(newFile), "UTF-8")) {
+            FileConfiguration config = new YamlConfiguration();
+            config.load(Config);
+            configurations.put(file, config);
+            if (Main.language.get("ConfigurationFileLoadedSuccessfully") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileLoadedSuccessfully").replace("{file}", newFile.getName()).replace("{prefix}", prefix).replace("&", "§"));
+        } catch (IOException | InvalidConfigurationException ex) {
+            if (Main.language.get("ConfigurationFileLoadingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileLoadingError").replace("{file}", newFile.getName()).replace("{prefix}", prefix).replace("&", "§"));
+            File oldFile = new File(main.getDataFolder(), newFile.getName() + ".old");
+            if (oldFile.exists()) {
+                oldFile.delete();
+            }
+            newFile.renameTo(oldFile);
+            saveResource(file);
+            try (Reader newConfig = new InputStreamReader(new FileInputStream(newFile))) {
+                FileConfiguration config = new YamlConfiguration();
+                config.load(newConfig);
+                configurations.put(file, config);
+            } catch (IOException | InvalidConfigurationException ex1) {
+                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+            if (Main.language.get("ConfigurationFileRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileRepair").replace("{prefix}", prefix).replace("&", "§"));
+        }
+        GlobalMarket.getMarket().reloadData();
+    }
+    
+    public void reloadItemCollectionFile() {
+        Files file = Files.ITEMCOLLECTION;
+        saveResource(file);
+        File newFile = new File(main.getDataFolder(), file.getFileLocation());
+        try (Reader Config = new InputStreamReader(new FileInputStream(newFile), "UTF-8")) {
+            FileConfiguration config = new YamlConfiguration();
+            config.load(Config);
+            configurations.put(file, config);
+            if (Main.language.get("ConfigurationFileLoadedSuccessfully") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileLoadedSuccessfully").replace("{file}", newFile.getName()).replace("{prefix}", prefix).replace("&", "§"));
+        } catch (IOException | InvalidConfigurationException ex) {
+            if (Main.language.get("ConfigurationFileLoadingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileLoadingError").replace("{file}", newFile.getName()).replace("{prefix}", prefix).replace("&", "§"));
+            File oldFile = new File(main.getDataFolder(), newFile.getName() + ".old");
+            if (oldFile.exists()) {
+                oldFile.delete();
+            }
+            newFile.renameTo(oldFile);
+            saveResource(file);
+            try (Reader newConfig = new InputStreamReader(new FileInputStream(newFile))) {
+                FileConfiguration config = new YamlConfiguration();
+                config.load(newConfig);
+                configurations.put(file, config);
+            } catch (IOException | InvalidConfigurationException ex1) {
+                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex1);
+            }
+            if (Main.language.get("ConfigurationFileRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileRepair").replace("{prefix}", prefix).replace("&", "§"));
+        }
+        GlobalMarket.getMarket().reloadData();
+    }
+    
     public FileManager setup(Main main) {
         new BukkitRunnable() {
             @Override
@@ -766,6 +824,8 @@ public class FileManager {
         //ENUM_NAME("FileName.yml", "FilePath.yml"),
         CONFIG("Config.yml", "Config.yml"),
         DATABASE("Database.yml", "Database.yml"),
+        CATEGORY("Category.yml", "Category.yml"),
+        ITEMCOLLECTION("ItemCollection.yml", "ItemCollection.yml"),
         MESSAGES("Messages.yml", "Messages.yml");
         
         private final String fileName;
@@ -872,10 +932,8 @@ public class FileManager {
         }
         
         public boolean getBoolean(String path) {
-            if (file.equals(Files.DATABASE)) return config.getBoolean(path);
             if (config.get(path) == null) {
-                reset(path);
-                return config.getBoolean(path);
+                return false;
             } else {
                 return config.getBoolean(path);
             }

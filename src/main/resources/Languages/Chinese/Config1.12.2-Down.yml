@@ -4,7 +4,7 @@ Settings:
     Sell-GUIName: '&8&l全球市场 | &b&l出售&c&l'
     Buy-GUIName: '&8&l全球市场 | &d&l收购&c&l'
     Bid-GUIName: '&8&l全球市场 | &5&l拍卖&c&l'
-    Player-Items-List: '&8&l你的所有商品&c&l'
+    Player-Items-List: '&8&l你的所有商品'
     Player-Items-Mail: '&8&l收件箱&c&l' 
     Player-Viewer-GUIName: '&8&l正在查看其他玩家的商品&c&l'
     Buying-Item: '&8是否确认&b&l购买&8这个物品？' 
@@ -222,70 +222,80 @@ Settings:
                     Lore:
                     - ''
                     - '&e这个分类包含了市场所有类型的商品'
-            Armor:
-                Item: '311'
-                Toggle: true
-                Slot: 11
-                Name: '&b&l盔甲'
-                Lore:
-                - ''
-                - '&e这个分类包含了市场所有的盔甲'
-            Weapons:
-                Item: '276'
-                Toggle: true
-                Slot: 12
-                Name: '&c&l武器'
-                Lore:
-                - ''
-                - '&e这个分类包含了市场所有的武器'
-            Tools:
-                Item: '278'
-                Toggle: true
-                Slot: 13
-                Name: '&d&l工具'
-                Lore:
-                - ''
-                - '&e这个分类包含了市场所有的工具'
-            Food:
-                Item: '322:1'
-                Toggle: true
-                Slot: 14
-                Name: '&a&l食物'
-                Lore:
-                - ''
-                - '&e这个分类包含了市场所有的食物'
-            Potions:
-                Item: '373:8227'
-                Toggle: true
-                Slot: 15
-                Name: '&5&l药水'
-                Lore:
-                - ''
-                - '&e这个分类包含了市场所有的药水'
-            Blocks:
-                Item: '2'
-                Toggle: true
-                Slot: 16
-                Name: '&2&l方块'
-                Lore:
-                - ''
-                - '&7这个分类包含了市场所有的方块'
-            Other:
-                Item: '327'
-                Toggle: true
-                Slot: 17
-                Name: '&6&l其它'
-                Lore:
-                - ''
-                - '&e这个分类包含了其它所有的商品'
-            None:
-                Item: '345'
-                Toggle: true
-                Slot: 23
-                Name: '&3&l无商品分类'
-                Lore:
-                - ''
-                - '&e这个分类包含了市场所有的商品'
+            Custom-Category:
+                #可按照以下格式进行自定义自定义
+                Armor:
+                    Item: '311'
+                    Toggle: true
+                    Category-Module: 盔甲
+                    Slot: 11
+                    Name: '&b&l盔甲'
+                    Lore:
+                    - ''
+                    - '&e这个分类包含了市场所有的盔甲'
+                Weapons:
+                    Item: '276'
+                    Toggle: true
+                    Category-Module: 武器
+                    Slot: 12
+                    Name: '&c&l武器'
+                    Lore:
+                    - ''
+                    - '&e这个分类包含了市场所有的武器'
+                Tools:
+                    Item: '278'
+                    Toggle: true
+                    Category-Module: 工具
+                    Slot: 13
+                    Name: '&d&l工具'
+                    Lore:
+                    - ''
+                    - '&e这个分类包含了市场所有的工具'
+                Food:
+                    Item: '322:1'
+                    Toggle: true
+                    Category-Module: 食物
+                    Slot: 14
+                    Name: '&a&l食物'
+                    Lore:
+                    - ''
+                    - '&e这个分类包含了市场所有的食物'
+                Potions:
+                    Item: '373:8227'
+                    Toggle: true
+                    Category-Module: 药水
+                    Slot: 15
+                    Name: '&5&l药水'
+                    Lore:
+                    - ''
+                    - '&e这个分类包含了市场所有的药水'
+                Blocks:
+                    Item: '2'
+                    Toggle: true
+                    Category-Module: 方块
+                    Slot: 16
+                    Name: '&2&l方块'
+                    Lore:
+                    - ''
+                    - '&7这个分类包含了市场所有的方块'
+                Other:
+                    Item: '327'
+                    Toggle: true
+                    Category-Module: 其他
+                    Slot: 17
+                    Name: '&6&l其它'
+                    Lore:
+                    - ''
+                    - '&e这个分类包含了其它所有的商品'
+                None:
+                    Item: '345'
+                    Toggle: true
+                    Category-Module: 无
+                    Slot: 23
+                    Name: '&3&l无商品分类'
+                    Lore:
+                    - ''
+                    - '&e这个分类包含了市场所有的商品'
         OtherSettings:
             Commoditys:
                 Item: '264'
@@ -586,6 +596,12 @@ Settings:
                     PlayerData:
                         Permission: crazyauctionsplus.command.reload.playerdata
                         Default: false
+                    Category:
+                        Permission: crazyauctionsplus.command.reload.category
+                        Default: false
+                    ItemCollection:
+                        Permission: crazyauctionsplus.command.reload.itemcollection
+                        Default: false
             #使用/ca gui的权限
             Gui: 
                 Permission: crazyauctionsplus.command.gui
@@ -639,3 +655,19 @@ Settings:
                     Info:
                         Permission: crazyauctionsplus.command.admin.info
                         Default: false
+                    ItemCollection:
+                        Permission: crazyauctionsplus.command.admin.itemcollection
+                        Default: false
+                        SubCommands:
+                            Add: 
+                                Permission: crazyauctionsplus.command.admin.itemcollection.add
+                                Default: false
+                            Delete: 
+                                Permission: crazyauctionsplus.command.admin.itemcollection.delete
+                                Default: false
+                            List:
+                                Permission: crazyauctionsplus.command.admin.itemcollection.list
+                                Default: false
+                            Give:
+                                Permission: crazyauctionsplus.command.admin.itemcollection.give
+                                Default: false
