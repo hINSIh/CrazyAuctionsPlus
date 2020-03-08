@@ -567,6 +567,11 @@ public class PluginCommand
                             return true;
                         }
                         double reward = Double.valueOf(args[1]);
+                        double tax = 0;
+                        if (!PluginControl.bypassTaxRate(player, ShopType.BUY)) {
+                            tax = PluginControl.getTaxRate(player, ShopType.BUY);
+                            reward += reward * tax;
+                        }
                         if (CurrencyManager.getMoney(player) < reward) { 
                             HashMap<String, String> placeholders = new HashMap();
                             placeholders.put("%Money_Needed%", String.valueOf(reward - CurrencyManager.getMoney(player)));
@@ -643,9 +648,8 @@ public class PluginCommand
                             reward
                         );
                         market.addGoods(goods);
-                        Bukkit.getPluginManager().callEvent(new AuctionListEvent(player, ShopType.BUY, item, reward));
+                        Bukkit.getPluginManager().callEvent(new AuctionListEvent(player, ShopType.BUY, item, reward, tax));
                         Map<String, String> placeholders = new HashMap();
-                        placeholders.put("%reward%", String.valueOf(reward));
                         placeholders.put("%reward%", String.valueOf(reward));
                         try {
                             placeholders.put("%Item%", item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : (String) item.getClass().getMethod("getI18NDisplayName").invoke(item));
@@ -666,6 +670,7 @@ public class PluginCommand
                     }
                     if (args.length >= 2) {
                         Player player = (Player) sender;
+                        ShopType type = ShopType.SELL;
                         if (args[0].equalsIgnoreCase("Sell")) {
                             if (!crazyAuctions.isSellingEnabled()) {
                                 player.sendMessage(Messages.getMessage("Selling-Disable"));
@@ -675,8 +680,8 @@ public class PluginCommand
                                 player.sendMessage(Messages.getMessage("No-Permission"));
                                 return true;
                             }
-                        }
-                        if (args[0].equalsIgnoreCase("Bid")) {
+                        } else if (args[0].equalsIgnoreCase("Bid")) {
+                            type = ShopType.BID;
                             if (!crazyAuctions.isBiddingEnabled()) {
                                 player.sendMessage(Messages.getMessage("Bidding-Disable"));
                                 return true;
@@ -700,6 +705,10 @@ public class PluginCommand
                             if (amount <= 0) amount = 1;
                             if (amount > item.getAmount()) amount = item.getAmount();
                         }
+                        if (PluginControl.getItemInHand(player).getType() == Material.AIR) {
+                            player.sendMessage(Messages.getMessage("Doesnt-Have-Item-In-Hand"));
+                            return false;
+                        }
                         if (!PluginControl.isNumber(args[1])) {
                             Map<String, String> placeholders = new HashMap();
                             placeholders.put("%Arg%", args[1]);
@@ -707,11 +716,60 @@ public class PluginCommand
                             player.sendMessage(Messages.getMessage("Not-A-Valid-Number", placeholders));
                             return true;
                         }
-                        if (PluginControl.getItemInHand(player).getType() == Material.AIR) {
-                            player.sendMessage(Messages.getMessage("Doesnt-Have-Item-In-Hand"));
-                            return false;
-                        }
                         double price = Double.valueOf(args[1]);
+                        double tax = 0;
+                        if (args[0].equalsIgnoreCase("Sell")) {
+                            if (!crazyAuctions.isSellingEnabled()) {
+                                player.sendMessage(Messages.getMessage("Selling-Disable"));
+                                return true;
+                            }
+                            if (!PluginControl.hasCommandPermission(player, "Sell", true)) {
+                                player.sendMessage(Messages.getMessage("No-Permission"));
+                                return true;
+                            }
+                            if (price < FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Sell-Price")) {
+                                Map<String, String> placeholders = new HashMap();
+                                placeholders.put("%price%", String.valueOf(FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Sell-Price")));
+                                player.sendMessage(Messages.getMessage("Sell-Price-To-Low", placeholders));
+                                return true;
+                            }
+                            if (price > FileManager.Files.CONFIG.getFile().getDouble("Settings.Max-Beginning-Sell-Price")) {
+                                Map<String, String> placeholders = new HashMap();
+                                placeholders.put("%price%", String.valueOf(FileManager.Files.CONFIG.getFile().getDouble("Settings.Max-Beginning-Sell-Price")));
+                                player.sendMessage(Messages.getMessage("Sell-Price-To-High", placeholders));
+                                return true;
+                            }
+                            if (!PluginControl.bypassLimit(player, ShopType.SELL)) {
+                                int limit = PluginControl.getLimit(player, ShopType.SELL);
+                                if (limit > -1) {
+                                    if (crazyAuctions.getNumberOfPlayerItems(player, ShopType.SELL) >= limit) {
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%number%", String.valueOf(limit));
+                                        player.sendMessage(Messages.getMessage("Max-Selling-Items", placeholders));
+                                        return true;
+                                    }
+                                }
+                            }
+                            if (!PluginControl.bypassTaxRate(player, ShopType.SELL)) {
+                                tax = price * PluginControl.getTaxRate(player, ShopType.SELL);
+                                if (CurrencyManager.getMoney(player) < tax) { 
+                                    HashMap<String, String> placeholders = new HashMap();
+                                    placeholders.put("%Money_Needed%", String.valueOf(tax - CurrencyManager.getMoney(player)));
+                                    placeholders.put("%money_needed%", String.valueOf(tax - CurrencyManager.getMoney(player)));
+                                    player.sendMessage(Messages.getMessage("Need-More-Money", placeholders));
+                                    return true;
+                                }
+//                                int limit = PluginControl.getLimit(player, ShopType.SELL);
+//                                if (limit > -1) {
+//                                    if (crazyAuctions.getNumberOfPlayerItems(player, ShopType.SELL) >= limit) {
+//                                        Map<String, String> placeholders = new HashMap();
+//                                        placeholders.put("%number%", String.valueOf(limit));
+//                                        player.sendMessage(Messages.getMessage("Max-Selling-Items", placeholders));
+//                                        return true;
+//                                    }
+//                                }
+                            }
+                        }
                         if (args[0].equalsIgnoreCase("Bid")) {
                             if (price < FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Bid-Price")) {
                                 Map<String, String> placeholders = new HashMap();
@@ -725,34 +783,6 @@ public class PluginCommand
                                 player.sendMessage(Messages.getMessage("Bid-Price-To-High", placeholders));
                                 return true;
                             }
-                        } else {
-                            if (price < FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Sell-Price")) {
-                                Map<String, String> placeholders = new HashMap();
-                                placeholders.put("%price%", String.valueOf(FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Sell-Price")));
-                                player.sendMessage(Messages.getMessage("Sell-Price-To-Low", placeholders));
-                                return true;
-                            }
-                            if (price > FileManager.Files.CONFIG.getFile().getDouble("Settings.Max-Beginning-Sell-Price")) {
-                                Map<String, String> placeholders = new HashMap();
-                                placeholders.put("%price%", String.valueOf(FileManager.Files.CONFIG.getFile().getDouble("Settings.Max-Beginning-Sell-Price")));
-                                player.sendMessage(Messages.getMessage("Sell-Price-To-High", placeholders));
-                                return true;
-                            }
-                        }
-                        if (args[0].equalsIgnoreCase("sell")) {
-                            if (!PluginControl.bypassLimit(player, ShopType.SELL)) {
-                                int limit = PluginControl.getLimit(player, ShopType.SELL);
-                                if (limit > -1) {
-                                    if (crazyAuctions.getNumberOfPlayerItems(player, ShopType.SELL) >= limit) {
-                                        Map<String, String> placeholders = new HashMap();
-                                        placeholders.put("%number%", String.valueOf(limit));
-                                        player.sendMessage(Messages.getMessage("Max-Selling-Items", placeholders));
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                        if (args[0].equalsIgnoreCase("bid")) {
                             if (!PluginControl.bypassLimit(player, ShopType.BID)) {
                                 int limit = PluginControl.getLimit(player, ShopType.BID);
                                 if (limit > -1) {
@@ -764,7 +794,88 @@ public class PluginCommand
                                     }
                                 }
                             }
+                            if (!PluginControl.bypassTaxRate(player, ShopType.BID)) {
+                                tax = price * PluginControl.getTaxRate(player, ShopType.BID);
+                                if (CurrencyManager.getMoney(player) < tax) { 
+                                    HashMap<String, String> placeholders = new HashMap();
+                                    placeholders.put("%Money_Needed%", String.valueOf(tax - CurrencyManager.getMoney(player)));
+                                    placeholders.put("%money_needed%", String.valueOf(tax - CurrencyManager.getMoney(player)));
+                                    player.sendMessage(Messages.getMessage("Need-More-Money", placeholders));
+                                    return true;
+                                }
+                            }
                         }
+//                        ItemStack item = PluginControl.getItemInHand(player);
+//                        int amount = item.getAmount();
+//                        if (args.length >= 3) {
+//                            if (!PluginControl.isInt(args[2])) {
+//                                Map<String, String> placeholders = new HashMap();
+//                                placeholders.put("%Arg%", args[2]);
+//                                placeholders.put("%arg%", args[2]);
+//                                player.sendMessage(Messages.getMessage("Not-A-Valid-Number", placeholders));
+//                                return true;
+//                            }
+//                            amount = Integer.parseInt(args[2]);
+//                            if (amount <= 0) amount = 1;
+//                            if (amount > item.getAmount()) amount = item.getAmount();
+//                        }
+//                        if (PluginControl.getItemInHand(player).getType() == Material.AIR) {
+//                            player.sendMessage(Messages.getMessage("Doesnt-Have-Item-In-Hand"));
+//                            return false;
+//                        }
+//                        if (args[0].equalsIgnoreCase("Bid")) {
+//                            if (price < FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Bid-Price")) {
+//                                Map<String, String> placeholders = new HashMap();
+//                                placeholders.put("%price%", String.valueOf(FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Bid-Price")));
+//                                player.sendMessage(Messages.getMessage("Bid-Price-To-Low", placeholders));
+//                                return true;
+//                            }
+//                            if (price > FileManager.Files.CONFIG.getFile().getDouble("Settings.Max-Beginning-Bid-Price")) {
+//                                Map<String, String> placeholders = new HashMap();
+//                                placeholders.put("%price%", String.valueOf(FileManager.Files.CONFIG.getFile().getDouble("Settings.Max-Beginning-Bid-Price")));
+//                                player.sendMessage(Messages.getMessage("Bid-Price-To-High", placeholders));
+//                                return true;
+//                            }
+//                        } else {
+//                            if (price < FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Sell-Price")) {
+//                                Map<String, String> placeholders = new HashMap();
+//                                placeholders.put("%price%", String.valueOf(FileManager.Files.CONFIG.getFile().getDouble("Settings.Minimum-Sell-Price")));
+//                                player.sendMessage(Messages.getMessage("Sell-Price-To-Low", placeholders));
+//                                return true;
+//                            }
+//                            if (price > FileManager.Files.CONFIG.getFile().getDouble("Settings.Max-Beginning-Sell-Price")) {
+//                                Map<String, String> placeholders = new HashMap();
+//                                placeholders.put("%price%", String.valueOf(FileManager.Files.CONFIG.getFile().getDouble("Settings.Max-Beginning-Sell-Price")));
+//                                player.sendMessage(Messages.getMessage("Sell-Price-To-High", placeholders));
+//                                return true;
+//                            }
+//                        }
+//                        if (args[0].equalsIgnoreCase("sell")) {
+//                            if (!PluginControl.bypassLimit(player, ShopType.SELL)) {
+//                                int limit = PluginControl.getLimit(player, ShopType.SELL);
+//                                if (limit > -1) {
+//                                    if (crazyAuctions.getNumberOfPlayerItems(player, ShopType.SELL) >= limit) {
+//                                        Map<String, String> placeholders = new HashMap();
+//                                        placeholders.put("%number%", String.valueOf(limit));
+//                                        player.sendMessage(Messages.getMessage("Max-Selling-Items", placeholders));
+//                                        return true;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        if (args[0].equalsIgnoreCase("bid")) {
+//                            if (!PluginControl.bypassLimit(player, ShopType.BID)) {
+//                                int limit = PluginControl.getLimit(player, ShopType.BID);
+//                                if (limit > -1) {
+//                                    if (crazyAuctions.getNumberOfPlayerItems(player, ShopType.BID) >= limit) {
+//                                        Map<String, String> placeholders = new HashMap();
+//                                        placeholders.put("%number%", String.valueOf(limit));
+//                                        player.sendMessage(Messages.getMessage("Max-Bidding-Items", placeholders));
+//                                        return true;
+//                                    }
+//                                }
+//                            }
+//                        }
                         for (String id : FileManager.Files.CONFIG.getFile().getStringList("Settings.BlackList")) {
                             if (item.getType() == PluginControl.makeItem(id, 1).getType()) {
                                 player.sendMessage(Messages.getMessage("Item-BlackListed"));
@@ -782,29 +893,36 @@ public class PluginCommand
                             }
                         }
                         UUID owner = player.getUniqueId();
-                        ShopType type = ShopType.SELL;
-                        if (args[0].equalsIgnoreCase("Bid")) {
-                            type = ShopType.BID;
-                        }
-                        ItemStack I = item.clone();
-                        I.setAmount(amount);
+//                        ShopType type = ShopType.SELL;
+//                        if (args[0].equalsIgnoreCase("Bid")) {
+//                            type = ShopType.BID;
+//                        }
+                        ItemStack is = item.clone();
+                        is.setAmount(amount);
                         GlobalMarket market = GlobalMarket.getMarket();
                         MarketGoods goods = new MarketGoods(
                             market.makeUID(),
                             type,
                             new ItemOwner(owner, player.getName()),
-                            I,
+                            is,
                             type.equals(ShopType.BID) ? PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Bid-Time")) : PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Sell-Time")),
                             PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")),
                             price,
                             "None"
                         );
                         market.addGoods(goods);
-                        Bukkit.getPluginManager().callEvent(new AuctionListEvent(player, type, I, price));
+                        Bukkit.getPluginManager().callEvent(new AuctionListEvent(player, type, is, price, tax));
+                        CurrencyManager.removeMoney(player, tax);
                         Map<String, String> placeholders = new HashMap();
                         placeholders.put("%Price%", String.valueOf(price));
                         placeholders.put("%price%", String.valueOf(price));
-                        player.sendMessage(Messages.getMessage("Added-Item-To-Auction", placeholders));
+                        if (type.equals(ShopType.BID)) {
+                            placeholders.put("%tax%", String.valueOf(tax));
+                            player.sendMessage(Messages.getMessage("Added-Item-For-Bid", placeholders));
+                        } else {
+                            placeholders.put("%tax%", String.valueOf(tax));
+                            player.sendMessage(Messages.getMessage("Added-Item-For-Sale", placeholders));
+                        }
                         if (item.getAmount() <= 1 || (item.getAmount() - amount) <= 0) {
                             PluginControl.setItemInHand(player, new ItemStack(Material.AIR));
                         } else {

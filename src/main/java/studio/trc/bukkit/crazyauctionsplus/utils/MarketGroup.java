@@ -25,6 +25,18 @@ public class MarketGroup
         return config.getInt("Settings.Permissions.Market.Permission-Groups." + groupname + ".Bid-Limit");
     }
     
+    public double getSellTaxRate() {
+        return config.getDouble("Settings.Permissions.Market.Permission-Groups." + groupname + ".Sell-Tax-Rate");
+    }
+    
+    public double getBuyTaxRate() {
+        return config.getDouble("Settings.Permissions.Market.Permission-Groups." + groupname + ".Buy-Tax-Rate");
+    }
+    
+    public double getBidTaxRate() {
+        return config.getInt("Settings.Permissions.Market.Permission-Groups." + groupname + ".Bid-Tax-Rate");
+    }
+    
     public String getGroupName() {
         return groupname;
     }

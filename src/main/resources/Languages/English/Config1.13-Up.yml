@@ -485,6 +485,18 @@ Settings:
             Bid-Bypass: 
                 Permission: crazyauctionsplus.market.bid-bypass
                 Default: false
+            #Bypass taxes on items sold
+            Sell-Tax-Rate-Bypass: 
+                Permission: crazyauctionsplus.market.sell-tax-rate-bypass
+                Default: false
+            #Bypass taxes on purchases
+            Buy-Tax-Rate-Bypass: 
+                Permission: crazyauctionsplus.market.buy-tax-rate-bypass
+                Default: false
+            #Bypass taxes on items bid
+            Bid-Tax-Rate-Bypass: 
+                Permission: crazyauctionsplus.market.bid-tax-rate-bypass
+                Default: false
             #Cancelled item's permission
             Cancelled-Item: 
                 Permission: crazyauctionsplus.market.cancelleditem
@@ -500,6 +512,10 @@ Settings:
                     Buy-Limit: -1
                     #Maximum number of items bid, -1 is unlimited
                     Bid-Limit: -1
+                    #Tax rate, 0 is none
+                    Sell-Tax-Rate: 0.05
+                    Buy-Tax-Rate: 0.05
+                    Bid-Tax-Rate: 0.05
                 Default:
                     Permission: crazyauctionsplus.group.default
                     #Whether it is the default permission group?
@@ -507,6 +523,9 @@ Settings:
                     Sell-Limit: 10
                     Buy-Limit: 10
                     Bid-Limit: 3
+                    Sell-Tax-Rate: 0.05
+                    Buy-Tax-Rate: 0.05
+                    Bid-Tax-Rate: 0.05
         #Command permissions
         Commands:
             #Permissions to use plugin main commands

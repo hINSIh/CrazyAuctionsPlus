@@ -542,6 +542,18 @@ Settings:
             Bid-Bypass: 
                 Permission: crazyauctionsplus.market.bid-bypass
                 Default: false
+            #绕过出售物品时的税收
+            Sell-Tax-Rate-Bypass: 
+                Permission: crazyauctionsplus.market.sell-tax-rate-bypass
+                Default: false
+            #绕过收购物品时的税收
+            Buy-Tax-Rate-Bypass: 
+                Permission: crazyauctionsplus.market.buy-tax-rate-bypass
+                Default: false
+            #绕过拍卖物品时的税收
+            Bid-Tax-Rate-Bypass: 
+                Permission: crazyauctionsplus.market.bid-tax-rate-bypass
+                Default: false
             #取消商品
             Cancelled-Item: 
                 Permission: crazyauctionsplus.market.cancelleditem
@@ -558,6 +570,12 @@ Settings:
                     Buy-Limit: -1
                     #拍卖物品的上限
                     Bid-Limit: -1
+                    #出售物品的税率（0为无）
+                    Sell-Tax-Rate: 0
+                    #收购物品的税率（0为无）
+                    Buy-Tax-Rate: 0
+                    #拍卖物品的税率（0为无）
+                    Bid-Tax-Rate: 0
                 Default:
                     Permission: crazyauctionsplus.group.default
                     #是否为默认的权限组
@@ -565,6 +583,9 @@ Settings:
                     Sell-Limit: 10
                     Buy-Limit: 10
                     Bid-Limit: 3
+                    Sell-Tax-Rate: 0.05
+                    Buy-Tax-Rate: 0.05
+                    Bid-Tax-Rate: 0.05
         #命令权限
         Commands:
             #使用插件主命令的权限

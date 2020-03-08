@@ -651,14 +651,7 @@ public class GUI
                 String sound = FileManager.Files.CONFIG.getFile().getString("Settings.Sounds.Sound");
                 try {
                     player.playSound(player.getLocation(), Sound.valueOf(sound), 1, 1);
-                } catch (Exception e) {
-                    if (PluginControl.getVersion() >= 191) {
-                        player.playSound(player.getLocation(), Sound.valueOf("UI_BUTTON_CLICK"), 1, 1);
-                    } else {
-                        player.playSound(player.getLocation(), Sound.valueOf("CLICK"), 1, 1);
-                    }
-                    Bukkit.getLogger().log(Level.WARNING, "[Crazy Auctions]>> You set the sound to " + sound + " and this is not a sound for your minecraft version. " + "Please go to the config and set a correct sound or turn the sound off in the toggle setting.");
-                }
+                } catch (Exception e) {}
             }
         } else {
             if (PluginControl.getVersion() >= 191) {

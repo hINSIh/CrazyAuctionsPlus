@@ -7,6 +7,7 @@ import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CrazyAuctions {
     
@@ -67,8 +68,8 @@ public class CrazyAuctions {
         return number;
     }
     
-    public ArrayList<MarketGoods> getMarketItems(Player player) {
-        ArrayList<MarketGoods> items = new ArrayList();
+    public List<MarketGoods> getMarketItems(Player player) {
+        List<MarketGoods> items = new ArrayList();
         GlobalMarket market = GlobalMarket.getMarket();
         if (!market.getItems().isEmpty()) {
             for (MarketGoods mg : market.getItems()) {

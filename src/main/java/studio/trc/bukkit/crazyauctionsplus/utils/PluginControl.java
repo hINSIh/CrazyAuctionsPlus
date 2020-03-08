@@ -339,6 +339,27 @@ public class PluginControl {
         }
     }
     
+    public static boolean bypassTaxRate(Player player, ShopType type) {
+        ProtectedConfiguration config = Files.CONFIG.getFile();
+        switch (type) {
+            case SELL: {
+                if (config.getBoolean("Settings.Permissions.Market.Sell-Tax-Rate-Bypass.Default")) return true;
+                return player.hasPermission(config.getString("Settings.Permissions.Market.Sell-Tax-Rate-Bypass.Permission"));
+            }
+            case BUY: {
+                if (config.getBoolean("Settings.Permissions.Market.Buy-Tax-Rate-Bypass.Default")) return true;
+                return player.hasPermission(config.getString("Settings.Permissions.Market.Buy-Tax-Rate-Bypass.Permission"));
+            }
+            case BID: {
+                if (config.getBoolean("Settings.Permissions.Market.Bid-Tax-Rate-Bypass.Default")) return true;
+                return player.hasPermission(config.getString("Settings.Permissions.Market.Bid-Tax-Rate-Bypass.Permission"));
+            }
+            default: {
+                return false;
+            }
+        }
+    }
+    
     public static boolean hasMarketPermission(Player player, String perm) {
         ProtectedConfiguration config = Files.CONFIG.getFile();
         if (config.getBoolean("Settings.Permissions.Market." + perm + ".Default")) return true;
@@ -355,6 +376,23 @@ public class PluginControl {
             }
             case BID: {
                 return getMarketGroup(player).getBidLimit();
+            }
+            default: {
+                return 0;
+            }
+        }
+    }
+    
+    public static double getTaxRate(Player player, ShopType type) {
+        switch (type) {
+            case SELL: {
+                return getMarketGroup(player).getSellTaxRate();
+            }
+            case BUY: {
+                return getMarketGroup(player).getBuyTaxRate();
+            }
+            case BID: {
+                return getMarketGroup(player).getBidTaxRate();
             }
             default: {
                 return 0;
