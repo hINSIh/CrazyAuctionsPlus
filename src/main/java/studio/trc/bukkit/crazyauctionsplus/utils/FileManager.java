@@ -974,10 +974,6 @@ public class FileManager {
         }
         
         public void set(String path, Object obj) {
-//            System.out.println("set " + path + " To: " + obj);
-//            if (path.equals("OutOfTime/Cancelled.1")) {
-//                throw new NullPointerException("caonimaye");
-//            }
             config.set(path, obj);
         }
         
