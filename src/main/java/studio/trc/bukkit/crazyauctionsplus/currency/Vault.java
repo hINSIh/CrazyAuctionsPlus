@@ -29,22 +29,20 @@ public class Vault {
         return econ != null;
     }
     
-    public static Long getMoney(Player player) {
+    public static double getMoney(Player player) {
         if (player != null) {
             try {
-                return (long) econ.getBalance(player);
-            } catch (NullPointerException ignore) {
-            }
+                return econ.getBalance(player);
+            } catch (NullPointerException ignore) {}
         }
         return 0L;
     }
     
-    public static Long getMoney(OfflinePlayer player) {
+    public static double getMoney(OfflinePlayer player) {
         if (player != null) {
             try {
-                return (long) econ.getBalance(player);
-            } catch (NullPointerException ignore) {
-            }
+                return econ.getBalance(player);
+            } catch (NullPointerException ignore) {}
         }
         return 0L;
     }

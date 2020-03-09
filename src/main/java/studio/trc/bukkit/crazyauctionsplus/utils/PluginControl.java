@@ -758,16 +758,17 @@ public class PluginControl {
                     fm.logInfo(true).setup(Main.getInstance());
                     if (AuctionUpdateThread.thread != null) AuctionUpdateThread.thread.stop();
                     if (PluginControl.useSplitDatabase()) {
-                        boolean database = false;
+                        boolean database_MySQL = false;
+                        boolean database_SQLite = false;
                         switch (PluginControl.getItemMailStorageMethod()) {
                             case MySQL: {
                                 MySQLStorage.cache.clear();
-                                database = true;
+                                database_MySQL = true;
                                 break;
                             }
                             case SQLite: {
                                 SQLiteStorage.cache.clear();
-                                database = true;
+                                database_SQLite = true;
                                 break;
                             }
                             case YAML: {
@@ -778,13 +779,11 @@ public class PluginControl {
                         
                         switch (PluginControl.getMarketStorageMethod()) {
                             case MySQL: {
-                                MySQLMarket.getInstance().reloadData();
-                                database = true;
+                                database_MySQL = true;
                                 break;
                             }
                             case SQLite: {
-                                SQLiteMarket.getInstance().reloadData();
-                                database = true;
+                                database_SQLite = true;
                                 break;
                             }
                             case YAML: {
@@ -793,9 +792,15 @@ public class PluginControl {
                             }
                         }
                         
-                        if (database) {
-                            DatabaseEngine.getDatabase().reloadConnectionParameters();
+                        if (database_MySQL) {
+                            MySQLEngine.getInstance().reloadConnectionParameters();
                         }
+                        
+                        if (database_SQLite) {
+                            SQLiteEngine.getInstance().reloadConnectionParameters();
+                        }
+                        
+                        GlobalMarket.getMarket().reloadData();
                     } else if (PluginControl.useMySQLStorage()) {
                         DatabaseEngine.getDatabase().reloadConnectionParameters();
                         MySQLStorage.cache.clear();
@@ -823,16 +828,17 @@ public class PluginControl {
                 }
                 case DATABASE: {
                     if (PluginControl.useSplitDatabase()) {
-                        boolean database = false;
+                        boolean database_MySQL = false;
+                        boolean database_SQLite = false;
                         switch (PluginControl.getItemMailStorageMethod()) {
                             case MySQL: {
                                 MySQLStorage.cache.clear();
-                                database = true;
+                                database_MySQL = true;
                                 break;
                             }
                             case SQLite: {
                                 SQLiteStorage.cache.clear();
-                                database = true;
+                                database_SQLite = true;
                                 break;
                             }
                             case YAML: {
@@ -844,12 +850,12 @@ public class PluginControl {
                         switch (PluginControl.getMarketStorageMethod()) {
                             case MySQL: {
                                 MySQLMarket.getInstance().reloadData();
-                                database = true;
+                                database_MySQL = true;
                                 break;
                             }
                             case SQLite: {
                                 SQLiteMarket.getInstance().reloadData();
-                                database = true;
+                                database_SQLite = true;
                                 break;
                             }
                             case YAML: {
@@ -858,9 +864,14 @@ public class PluginControl {
                             }
                         }
                         
-                        if (database) {
-                            DatabaseEngine.getDatabase().reloadConnectionParameters();
+                        if (database_MySQL) {
+                            MySQLEngine.getInstance().reloadConnectionParameters();
                         }
+                        
+                        if (database_SQLite) {
+                            SQLiteEngine.getInstance().reloadConnectionParameters();
+                        }
+                        
                     } else if (PluginControl.useMySQLStorage()) {
                         DatabaseEngine.getDatabase().reloadConnectionParameters();
                         MySQLStorage.cache.clear();

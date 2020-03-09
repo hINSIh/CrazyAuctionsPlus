@@ -45,11 +45,11 @@ public enum CurrencyManager {
      *            Player you want the currency from.
      * @return Returns the amount they have of the currency
      */
-    public static Long getMoney(Player player) {
+    public static double getMoney(Player player) {
         return Vault.getMoney(player);
     }
     
-    public static Long getMoney(UUID uuid) {
+    public static double getMoney(UUID uuid) {
         return Vault.getMoney(Bukkit.getOfflinePlayer(uuid));
     }
     

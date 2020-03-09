@@ -51,6 +51,7 @@ public class Main
     
     @Override
     public void onEnable() {
+        long time = System.currentTimeMillis();
         m = this;
         String lang = Locale.getDefault().toString();
         if (lang.equalsIgnoreCase("zh_cn")) {
@@ -70,6 +71,12 @@ public class Main
             return;
         }
         PluginControl.reload(ReloadType.ALL);
+        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+            if (language.get("DependentPluginExist") != null) getServer().getConsoleSender().sendMessage(language.getProperty("DependentPluginExist").replace("{plugin}", "Vault").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+        } else {
+            if (language.get("DependentPluginNotExist") != null) getServer().getConsoleSender().sendMessage(language.getProperty("DependentPluginNotExist").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+            return;
+        }
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new Join(), this);
         pm.registerEvents(new Quit(), this);
@@ -84,13 +91,11 @@ public class Main
         getCommand("CA").setExecutor(pc);
         getCommand("CAP").setExecutor(pc);
         startCheck();
-        if (!Vault.setupEconomy()) {
-            saveDefaultConfig();
-        }
+        Vault.setupEconomy();
         if (!PluginControl.useMySQLStorage() && !PluginControl.useSQLiteStorage()) {
             PluginControl.updateCacheData();
         }
-        if (language.get("PluginEnabledSuccessfully") != null) getServer().getConsoleSender().sendMessage(language.getProperty("PluginEnabledSuccessfully").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+        if (language.get("PluginEnabledSuccessfully") != null) getServer().getConsoleSender().sendMessage(language.getProperty("PluginEnabledSuccessfully").replace("{time}", String.valueOf(System.currentTimeMillis() - time)).replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
     }
     
     @Override
