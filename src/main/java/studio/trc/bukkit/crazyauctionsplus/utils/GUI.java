@@ -57,7 +57,7 @@ public class GUI
                             String owner = mg.getItemOwner().getName();
                             String topbidder = mg.getTopBidder().split(":")[0];
                             for (String l : Messages.getMessageList("BiddingItemLore")) {
-                                lore.add(l.replace("%topbid%", String.valueOf(mg.getPrice())).replace("%owner%", owner).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%topbidder%", topbidder).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+                                lore.add(l.replace("%topbid%", String.valueOf(mg.getPrice())).replace("%owner%", owner).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%topbidder%", topbidder).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                             }
                             if (mg.getItem() == null) continue;
                             items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -99,7 +99,7 @@ public class GUI
                                 for (String l : Messages.getMessageList("BiddingItemLore")) {
                                     lore.add(l
                                         .replace("%topbid%", String.valueOf(mg.getPrice()))
-                                        .replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime())))
+                                        .replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime())))
                                         .replace("%owner%", owner).replace("%topbidder%", topbidder).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                                 }
                                 if (mg.getItem() == null) continue;
@@ -113,7 +113,7 @@ public class GUI
                                     String owner = mg.getItemOwner().getName();
                                     lore.add(l.replace("%reward%", reward)
                                         .replace("%Owner%", owner) .replace("%owner%", owner)
-                                        .replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime())))
+                                        .replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime())))
                                         .replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                                 }
                                 items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -122,7 +122,7 @@ public class GUI
                             }
                             case SELL: {
                                 for (String l : Messages.getMessageList("SellingItemLore")) {
-                                    lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%Owner%", mg.getItemOwner().getName()).replace("%owner%", mg.getItemOwner().getName()).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+                                    lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%owner%", mg.getItemOwner().getName()).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                                 }
                                 if (mg.getItem() == null) continue;
                                 items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -215,7 +215,6 @@ public class GUI
             String name = config.getString("Settings.GUISettings.OtherSettings." + o + ".Name");
             List<String> lore = new ArrayList();
             int slot = config.getInt("Settings.GUISettings.OtherSettings." + o + ".Slot");
-//            String cName = PluginControl.color(config.getString("Settings.GUISettings.Category-Settings.Custom-Category." + shopCategory.get(player.getUniqueId()).getName() + ".Name"));
             if (config.contains("Settings.GUISettings.OtherSettings." + o + ".Lore")) {
                 for (String l : config.getStringList("Settings.GUISettings.OtherSettings." + o + ".Lore")) {
                     lore.add(l.replace("%category%", shopCategory.get(player.getUniqueId()).getDisplayName() != null ? shopCategory.get(player.getUniqueId()).getDisplayName() : shopCategory.get(player.getUniqueId()).getName()));
@@ -309,7 +308,7 @@ public class GUI
                     String owner = mg.getItemOwner().getName();
                     String topbidder = mg.getTopBidder().split(":")[0];
                     for (String l : Messages.getMessageList("CurrentBiddingItemLore")) {
-                        lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%topbid%", String.valueOf(mg.getPrice())).replace("%owner%", owner).replace("%topbidder%", topbidder).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+                        lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%topbid%", String.valueOf(mg.getPrice())).replace("%owner%", owner).replace("%topbidder%", topbidder).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                     }
                     if (mg.getItem() == null) continue;
                     items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -321,7 +320,7 @@ public class GUI
                         String owner = mg.getItemOwner().getName();
                         lore.add(l.replace("%reward%", reward)
                                 .replace("%Owner%", owner) .replace("%owner%", owner)
-                                .replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime())))
+                                .replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime())))
                                 .replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                     }
                     items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -329,7 +328,7 @@ public class GUI
                 }
                 if (mg.getShopType().equals(ShopType.SELL) || mg.getShopType().equals(ShopType.ANY)) {
                     for (String l : Messages.getMessageList("CurrentSellingItemLore")) {
-                        lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%Owner%", mg.getItemOwner().getName()).replace("%owner%", mg.getItemOwner().getName()).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+                        lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%Owner%", mg.getItemOwner().getName()).replace("%owner%", mg.getItemOwner().getName()).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                     }
                     if (mg.getItem() == null) continue;
                     items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -360,7 +359,7 @@ public class GUI
                 if (im.getItem() == null) continue;
                 List<String> lore = new ArrayList();
                 for (String l : Messages.getMessageList("Item-Mail-Lore")) {
-                    lore.add(l.replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(im.getFullTime()))).replace("%time%", PluginControl.convertToTime(im.getFullTime(), im.isNeverExpire())));
+                    lore.add(l.replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(im.getAddedTime()))).replace("%time%", PluginControl.convertToTime(im.getFullTime(), im.isNeverExpire())));
                 }
                 items.add(PluginControl.addLore(im.getItem().clone(), lore));
                 ID.add(im.getUID());
@@ -441,7 +440,7 @@ public class GUI
         ItemStack item = market.getMarketGoods(uid).getItem();
         List<String> lore = new ArrayList();
         for (String l : Messages.getMessageList("SellingItemLore")) {
-            lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%owner%", mg.getItemOwner().getName()).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+            lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%owner%", mg.getItemOwner().getName()).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
         }
         inv.setItem(4, PluginControl.addLore(item.clone(), lore));
         IDs.put(player.getUniqueId(), uid);
@@ -491,7 +490,7 @@ public class GUI
         List<String> lore = new ArrayList();
         for (String l : Messages.getMessageList("BuyingItemLore")) {
             String owner = mg.getItemOwner().getName();
-            lore.add(l.replace("%reward%", String.valueOf(mg.getReward())).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%reward%", String.valueOf(mg.getReward())).replace("%owner%", owner).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+            lore.add(l.replace("%reward%", String.valueOf(mg.getReward())).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%reward%", String.valueOf(mg.getReward())).replace("%owner%", owner).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
         }
         inv.setItem(4, PluginControl.addLore(item.clone(), lore));
         IDs.put(player.getUniqueId(), uid);
@@ -554,7 +553,7 @@ public class GUI
                     String owner = mg.getItemOwner().getName();
                     String topbidder = mg.getTopBidder().split(":")[0];
                     for (String l : Messages.getMessageList("BiddingItemLore")) {
-                        lore.add(l.replace("%topbid%", String.valueOf(mg.getPrice())).replace("%owner%", owner).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%topbidder%", topbidder).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+                        lore.add(l.replace("%topbid%", String.valueOf(mg.getPrice())).replace("%owner%", owner).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%topbidder%", topbidder).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                     }
                     if (mg.getItem() == null) continue;
                     items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -566,7 +565,7 @@ public class GUI
                         String owner = mg.getItemOwner().getName();
                         lore.add(l.replace("%reward%", reward)
                                 .replace("%owner%", owner)
-                                .replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime())))
+                                .replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime())))
                                 .replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                     }
                     items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -574,7 +573,7 @@ public class GUI
                 }
                 if (mg.getShopType().equals(ShopType.SELL) || mg.getShopType().equals(ShopType.ANY)) {
                     for (String l : Messages.getMessageList("SellingItemLore")) {
-                        lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%owner%", mg.getItemOwner().getName()).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+                        lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%owner%", mg.getItemOwner().getName()).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                     }
                     if (mg.getItem() == null) continue;
                     items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -640,7 +639,7 @@ public class GUI
         String price = String.valueOf(mg.getPrice());
         String time = PluginControl.convertToTime(mg.getTimeTillExpire(), false);
         for (String l : Messages.getMessageList("BiddingItemLore")) {
-            lore.add(l.replace("%topbid%", price).replace("%owner%", owner).replace("%topbidder%", topbidder).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getFullTime()))).replace("%time%", time));
+            lore.add(l.replace("%topbid%", price).replace("%owner%", owner).replace("%topbidder%", topbidder).replace("%addedtime%", new SimpleDateFormat(Messages.getMessage("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%time%", time));
         }
         return PluginControl.addLore(item.clone(), lore);
     }

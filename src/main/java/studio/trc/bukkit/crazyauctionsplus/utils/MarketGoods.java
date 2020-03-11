@@ -4,6 +4,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 
 import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.Files;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
 
 /**
@@ -113,11 +114,19 @@ public class MarketGoods
     }
     
     /**
-     * Get the time when the item was added.
+     * Get Full Time
      * @return 
      */
     public long getFullTime() {
         return fullTime;
+    }
+    
+    /**
+     * Get added time
+     * @return 
+     */
+    public long getAddedTime() {
+        return fullTime - (PluginControl.convertToMill(Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")) - System.currentTimeMillis());
     }
     
     /**

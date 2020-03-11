@@ -569,7 +569,7 @@ public class PluginCommand
                         double tax = 0;
                         if (!PluginControl.bypassTaxRate(player, ShopType.BUY)) {
                             tax = PluginControl.getTaxRate(player, ShopType.BUY);
-                            reward += reward * tax;
+                            reward = reward + tax;
                         }
                         if (CurrencyManager.getMoney(player) < reward) { 
                             HashMap<String, String> placeholders = new HashMap();
@@ -650,6 +650,7 @@ public class PluginCommand
                         Bukkit.getPluginManager().callEvent(new AuctionListEvent(player, ShopType.BUY, item, reward, tax));
                         Map<String, String> placeholders = new HashMap();
                         placeholders.put("%reward%", String.valueOf(reward));
+                        placeholders.put("%tax%", String.valueOf(tax));
                         try {
                             placeholders.put("%Item%", item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : (String) item.getClass().getMethod("getI18NDisplayName").invoke(item));
                             placeholders.put("%item%", item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : (String) item.getClass().getMethod("getI18NDisplayName").invoke(item));

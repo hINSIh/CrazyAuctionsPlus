@@ -16,7 +16,6 @@ Settings:
     Buy-Time: 10d
     Bid-Time: 2m
     Full-Expire-Time: 15d
-    Bid-Winner-Time: 20d
     Minimum-Sell-Price: 0.1
     Max-Beginning-Sell-Price: 1000000
     Minimum-Buy-Reward: 0.1

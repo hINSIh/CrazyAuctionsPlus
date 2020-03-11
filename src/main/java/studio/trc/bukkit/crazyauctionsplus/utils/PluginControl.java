@@ -100,7 +100,6 @@ public class PluginControl {
         } catch (Exception e) {
             if (Version.getCurrentVersion().isNewer(Version.v1_12_R1)) {
                 item = new ItemStack(Material.matchMaterial("RED_TERRACOTTA"), 1);
-                
             } else {
                 item = new ItemStack(Material.matchMaterial("STAINED_CLAY"), 1, (short) 14);
             }

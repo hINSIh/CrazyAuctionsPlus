@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.Files;
 
 /**
  * Used to process player item mail.
@@ -52,11 +53,19 @@ public class ItemMail
     }
     
     /**
-     * Get creation time.
+     * Get full time.
      * @return 
      */
     public long getFullTime() {
         return fullTime;
+    }
+    
+    /**
+     * Get creation time.
+     * @return 
+     */
+    public long getAddedTime() {
+        return fullTime - (PluginControl.convertToMill(Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")) - System.currentTimeMillis());
     }
     
     /**
