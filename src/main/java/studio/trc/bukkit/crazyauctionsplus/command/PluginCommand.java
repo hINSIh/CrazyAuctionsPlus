@@ -569,12 +569,11 @@ public class PluginCommand
                         double tax = 0;
                         if (!PluginControl.bypassTaxRate(player, ShopType.BUY)) {
                             tax = PluginControl.getTaxRate(player, ShopType.BUY);
-                            reward = reward + tax;
                         }
                         if (CurrencyManager.getMoney(player) < reward) { 
                             HashMap<String, String> placeholders = new HashMap();
-                            placeholders.put("%Money_Needed%", String.valueOf(reward - CurrencyManager.getMoney(player)));
-                            placeholders.put("%money_needed%", String.valueOf(reward - CurrencyManager.getMoney(player)));
+                            placeholders.put("%Money_Needed%", String.valueOf((reward + tax) - CurrencyManager.getMoney(player)));
+                            placeholders.put("%money_needed%", String.valueOf((reward + tax) - CurrencyManager.getMoney(player)));
                             player.sendMessage(Messages.getMessage("Need-More-Money", placeholders));
                             return true;
                         }
@@ -659,7 +658,7 @@ public class PluginCommand
                             placeholders.put("%item%", item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString().toLowerCase().replace("_", " "));
                         }
                         player.sendMessage(Messages.getMessage("Added-Item-For-Acquisition", placeholders));
-                        CurrencyManager.removeMoney(player, reward);
+                        CurrencyManager.removeMoney(player, reward + tax);
                     }
                     return true;
                 }
