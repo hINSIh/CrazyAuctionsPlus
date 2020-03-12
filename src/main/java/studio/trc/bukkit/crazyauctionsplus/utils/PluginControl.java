@@ -534,7 +534,7 @@ public class PluginControl {
     
     public static boolean itemExists(Player player, ItemStack is) {
         Material material = is.getType();
-        if (FileManager.Files.CONFIG.getFile().getBoolean("Settings.Item-NBT-comparison")) {
+        if (Files.CONFIG.getFile().getBoolean("Settings.Item-NBT-comparison")) {
             for (ItemStack items : player.getInventory().getContents()) {
                 if (items == null) continue;
                 if (items.getType().equals(material) && items.getItemMeta().equals(is.getItemMeta()) && items.getAmount() >= is.getAmount()) {
@@ -554,8 +554,19 @@ public class PluginControl {
         return false;
     }
     
+    public static boolean isWorldDisabled(Player player) {
+        if (player != null) {
+            for (String worlds : Files.CONFIG.getFile().getStringList("Settings.Disabled-Worlds")) {
+                if (worlds.equalsIgnoreCase(player.getWorld().getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     public static void takeItem(Player player, ItemStack item) {
-        if (FileManager.Files.CONFIG.getFile().getBoolean("Settings.Item-NBT-comparison")) {
+        if (Files.CONFIG.getFile().getBoolean("Settings.Item-NBT-comparison")) {
             for (ItemStack is : player.getInventory().getContents()) {
                 if (is != null) {
                     if (item.getType().equals(is.getType()) && item.getItemMeta().equals(is.getItemMeta()) && item.getAmount() <= is.getAmount()) {

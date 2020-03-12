@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.lang.reflect.InvocationTargetException;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager;
 
 public class GUIAction
     extends GUI
@@ -65,13 +66,17 @@ public class GUIAction
         if (!openingGUI.containsKey(e.getWhoClicked().getUniqueId())) {
             return;
         }
-        e.setCancelled(true);
         ProtectedConfiguration config = Files.CONFIG.getFile();
         GlobalMarket market = GlobalMarket.getMarket();
         Player player = (Player) e.getWhoClicked();
         Inventory inv = e.getInventory();
         if (inv != null) {
             if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Categories"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.CATEGORY)) {
+                e.setCancelled(true);
+                if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+                    player.closeInventory();
+                    return;
+                }
                 int slot = e.getRawSlot();
                 if (slot <= inv.getSize()) {
                     if (e.getCurrentItem() != null) {
@@ -122,6 +127,11 @@ public class GUIAction
                 }
             }
             if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Bidding-On-Item"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.BIDDING_ITEM)) {
+                e.setCancelled(true);
+                if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+                    player.closeInventory();
+                    return;
+                }
                 int slot = e.getRawSlot();
                 if (slot <= inv.getSize()) {
                     if (e.getCurrentItem() != null) {
@@ -204,6 +214,11 @@ public class GUIAction
                     openingGUI.get(player.getUniqueId()).equals(GUIType.GLOBALMARKET_BID) ||
                     openingGUI.get(player.getUniqueId()).equals(GUIType.GLOBALMARKET_BUY) ||
                     openingGUI.get(player.getUniqueId()).equals(GUIType.ITEM_VIEWER)) {
+                e.setCancelled(true);
+                if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+                    player.closeInventory();
+                    return;
+                }
                 int slot = e.getRawSlot();
                 if (slot <= inv.getSize()) {
                     if (e.getCurrentItem() != null) {
@@ -451,6 +466,11 @@ public class GUIAction
             }
         }
         if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Buying-Item"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.BUYING_ITEM)) {
+            e.setCancelled(true);
+            if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+                player.closeInventory();
+                return;
+            }
             int slot = e.getRawSlot();
             if (slot <= inv.getSize()) {
                 if (e.getCurrentItem() != null) {
@@ -512,6 +532,11 @@ public class GUIAction
             }
         }
         if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Selling-Item"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.SELLING_ITEM)) {
+            e.setCancelled(true);
+            if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+                player.closeInventory();
+                return;
+            }
             int slot = e.getRawSlot();
             if (slot <= inv.getSize()) {
                 if (e.getCurrentItem() != null) {
@@ -565,6 +590,11 @@ public class GUIAction
             }
         }
         if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Player-Items-List"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.ITEM_LIST)) {
+            e.setCancelled(true);
+            if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+                player.closeInventory();
+                return;
+            }
             int slot = e.getRawSlot();
             if (slot <= inv.getSize()) {
                 if (e.getCurrentItem() != null) {
@@ -684,6 +714,11 @@ public class GUIAction
             }
         }
         if (e.getView().getTitle().contains(PluginControl.color(config.getString("Settings.Player-Items-Mail"))) || openingGUI.get(player.getUniqueId()).equals(GUIType.ITEM_MAIL)) {
+            e.setCancelled(true);
+            if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+                player.closeInventory();
+                return;
+            }
             int slot = e.getRawSlot();
             if (slot <= inv.getSize()) {
                 if (e.getCurrentItem() != null) {

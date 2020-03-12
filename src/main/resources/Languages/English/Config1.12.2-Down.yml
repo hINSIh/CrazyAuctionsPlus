@@ -36,6 +36,8 @@ Settings:
         Selling: true #Able to use the selling part of the auction house.
         Bidding: true #Able to use the bidding part of the auction house.
         Buying: true #Able to use the buying part of the auction house.
+    Disabled-Worlds: #Worlds where the use of this plug-in function is prohibited.
+    - exampleworld 
     MySQL-Storage: #MySQL Database settings
         Enabled: false
         Hostname: localhost

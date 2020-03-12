@@ -3,10 +3,12 @@ package studio.trc.bukkit.crazyauctionsplus.events;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.*;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
 import studio.trc.bukkit.crazyauctionsplus.utils.Category;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.Files;
+import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
 
 import org.bukkit.entity.Player;
@@ -23,6 +25,9 @@ public class Join
         Player player = e.getPlayer();
         GUIAction.setCategory(player, Category.getDefaultCategory());
         GUIAction.setShopType(player, ShopType.ANY);
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            return;
+        }
         if (!Files.CONFIG.getFile().getBoolean("Settings.Join-Message")) return;
         new Thread(() -> {
             try {

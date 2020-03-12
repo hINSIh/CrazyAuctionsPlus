@@ -12,7 +12,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import studio.trc.bukkit.crazyauctionsplus.Main;
-import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.*;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.Files;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.ProtectedConfiguration;
+import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
 
 public class ShopSign
     implements Listener
@@ -22,6 +25,9 @@ public class ShopSign
     @EventHandler(priority = EventPriority.LOWEST)
     public void click(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(p)) {
+            return;
+        }
         ProtectedConfiguration config = Files.CONFIG.getFile();
         if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             if (!config.getBoolean("Settings.Shop-Sign.Enabled")) return;

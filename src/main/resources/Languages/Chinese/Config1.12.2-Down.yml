@@ -46,6 +46,9 @@ Settings:
         Selling: true
         Bidding: true
         Buying: true
+    #禁止使用本插件功能的世界
+    Disabled-Worlds:
+    - exampleworld
     #MySQL 数据库设置
     MySQL-Storage:
         Enabled: false

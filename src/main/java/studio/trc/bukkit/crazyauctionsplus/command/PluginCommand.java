@@ -57,6 +57,13 @@ public class PluginCommand
                 sender.sendMessage(Messages.getMessage("Admin-Command.RollBack.RollingBack"));
                 return true;
             }
+//            if (sender instanceof Player) {
+//                Player player = (Player) sender;
+//                if (PluginControl.isWorldDisabled(player)) {
+//                    sender.sendMessage(Messages.getMessage("World-Disabled"));
+//                    return true;
+//                }
+//            }
             if (args.length == 0) {
                 if (!PluginControl.hasCommandPermission(sender, "Access", true)) return true;
                 sender.sendMessage(Messages.getMessage("CrazyAuctions-Main").replace("{version}", Main.getInstance().getDescription().getVersion()));
@@ -460,6 +467,10 @@ public class PluginCommand
                     }
                     if (!PluginControl.hasCommandPermission(sender, "Gui", true)) return true;
                     Player player = (Player) sender;
+                    if (PluginControl.isWorldDisabled(player)) {
+                        sender.sendMessage(Messages.getMessage("World-Disabled"));
+                        return true;
+                    }
                     if (args.length == 1) {
                         if (Files.CONFIG.getFile().getBoolean("Settings.Category-Page-Opens-First")) {
                             GUIAction.setShopType(player, ShopType.ANY);
@@ -496,15 +507,18 @@ public class PluginCommand
                         sender.sendMessage(Messages.getMessage("Players-Only"));
                         return true;
                     }
+                    Player player = (Player) sender;
+                    if (PluginControl.isWorldDisabled(player)) {
+                        sender.sendMessage(Messages.getMessage("World-Disabled"));
+                        return true;
+                    }
                     if (args.length == 1) {
                         if (!PluginControl.hasCommandPermission(sender, "View", true)) return true;
-                        Player player = (Player) sender;
                         GUIAction.openViewer(player, player.getUniqueId(), 0);
                         return true;
                     }
                     if (args.length >= 2) {
                         if (!PluginControl.hasCommandPermission(sender, "View-Others-Player", true)) return true;
-                        Player player = (Player) sender;
                         Player target = Bukkit.getPlayer(args[1]);
                         if (target != null) {
                             GUIAction.openViewer(player, target.getUniqueId(), 1);
@@ -529,6 +543,10 @@ public class PluginCommand
                         return true;
                     }
                     Player player = (Player) sender;
+                    if (PluginControl.isWorldDisabled(player)) {
+                        sender.sendMessage(Messages.getMessage("World-Disabled"));
+                        return true;
+                    }
                     GUIAction.openPlayersMail(player, 1);
                     return true;
                 }
@@ -539,6 +557,10 @@ public class PluginCommand
                         return true;
                     }
                     Player player = (Player) sender;
+                    if (PluginControl.isWorldDisabled(player)) {
+                        sender.sendMessage(Messages.getMessage("World-Disabled"));
+                        return true;
+                    }
                     GUIAction.openPlayersCurrentList(player, 1);
                     return true;
                 }
@@ -553,6 +575,10 @@ public class PluginCommand
                     }
                     if (args.length >= 2) {
                         Player player = (Player) sender;
+                        if (PluginControl.isWorldDisabled(player)) {
+                            sender.sendMessage(Messages.getMessage("World-Disabled"));
+                            return true;
+                        }
                         if (!crazyAuctions.isBuyingEnabled()) {
                             player.sendMessage(Messages.getMessage("Buying-Disable"));
                             return true;
@@ -669,6 +695,10 @@ public class PluginCommand
                     }
                     if (args.length >= 2) {
                         Player player = (Player) sender;
+                        if (PluginControl.isWorldDisabled(player)) {
+                            sender.sendMessage(Messages.getMessage("World-Disabled"));
+                            return true;
+                        }
                         ShopType type = ShopType.SELL;
                         if (args[0].equalsIgnoreCase("Sell")) {
                             if (!crazyAuctions.isSellingEnabled()) {

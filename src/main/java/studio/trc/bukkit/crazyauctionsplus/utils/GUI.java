@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -25,19 +24,20 @@ import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
 
 public class GUI
 {
-    protected final static Map<UUID, Integer> bidding = new HashMap();
-    protected final static Map<UUID, Long> biddingID = new HashMap();
-    protected final static Map<UUID, ShopType> shopType = new HashMap();
-    protected final static Map<UUID, Category> shopCategory = new HashMap();
-    protected final static Map<UUID, List<Long>> itemUID = new HashMap();
-    protected final static Map<UUID, List<Long>> mailUID = new HashMap();
-    protected final static Map<UUID, Long> IDs = new HashMap();
+    protected final static Map<UUID, Integer> bidding = new HashMap(); // Unknown... from old CrazyAuctions plug-in.
+    protected final static Map<UUID, Long> biddingID = new HashMap(); // Record the UID of each player's last selected auction item.
+    protected final static Map<UUID, ShopType> shopType = new HashMap(); // Keep track of the categories each player is using. (Shop type)
+    protected final static Map<UUID, Category> shopCategory = new HashMap(); // Keep track of the categories each player is using. (Item categories)
+    protected final static Map<UUID, List<Long>> itemUID = new HashMap(); // "List<Long>": UID of this item in the global market.
+    protected final static Map<UUID, List<Long>> mailUID = new HashMap(); // "List<Long>": UID of this item in the item mail.
+    protected final static Map<UUID, Long> IDs = new HashMap(); // Unknown... from old CrazyAuctions plug-in.
     protected final static Map<UUID, GUIType> openingGUI = new HashMap();
-    protected final static CrazyAuctions crazyAuctions = CrazyAuctions.getInstance();
     
     public static void openShop(Player player, ShopType type, Category cat, int page) {
-        if (FileManager.isBackingUp()) return;
-        if (FileManager.isRollingBack()) return;
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            player.closeInventory();
+            return;
+        }
         PluginControl.updateCacheData();
         FileManager.ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         List<ItemStack> items = new ArrayList();
@@ -138,6 +138,9 @@ public class GUI
         for (; page > maxPage; page--) {}
         Inventory inv;
         GUIType guiType;
+        if (type == null) {
+            type = ShopType.ANY;
+        }
         switch (type) {
             case ANY: {
                 inv = Bukkit.createInventory(null, 54, PluginControl.color(config.getString("Settings.Main-GUIName") + " #" + page));
@@ -174,7 +177,7 @@ public class GUI
         switch (type) {
             case SELL: {
                 shopType.put(player.getUniqueId(), ShopType.SELL);
-                if (crazyAuctions.isSellingEnabled()) {
+                if (CrazyAuctions.getInstance().isSellingEnabled()) {
                     options.add("Shopping.Selling");
                 }
                 options.add("WhatIsThis.SellingShop");
@@ -182,7 +185,7 @@ public class GUI
             }
             case BID: {
                 shopType.put(player.getUniqueId(), ShopType.BID);
-                if (crazyAuctions.isBiddingEnabled()) {
+                if (CrazyAuctions.getInstance().isBiddingEnabled()) {
                     options.add("Shopping.Bidding");
                 }
                 options.add("WhatIsThis.BiddingShop");
@@ -190,7 +193,7 @@ public class GUI
             }
             case BUY: {
                 shopType.put(player.getUniqueId(), ShopType.BUY);
-                if (crazyAuctions.isBuyingEnabled()) {
+                if (CrazyAuctions.getInstance().isBuyingEnabled()) {
                     options.add("Shopping.Buying");
                 }
                 options.add("WhatIsThis.BuyingShop");
@@ -233,8 +236,10 @@ public class GUI
     }
     
     public static void openCategories(Player player, ShopType shop) {
-        if (FileManager.isBackingUp()) return;
-        if (FileManager.isRollingBack()) return;
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            player.closeInventory();
+            return;
+        }
         PluginControl.updateCacheData();
         ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         int size = config.getInt("Settings.GUISettings.Category-Settings.GUI-Size");
@@ -273,8 +278,10 @@ public class GUI
     }
     
     public static void openPlayersCurrentList(Player player, int page) {
-        if (FileManager.isBackingUp()) return;
-        if (FileManager.isRollingBack()) return;
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            player.closeInventory();
+            return;
+        }
         PluginControl.updateCacheData();
         FileManager.ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         List<ItemStack> items = new ArrayList();
@@ -345,8 +352,10 @@ public class GUI
     }
     
     public static void openPlayersMail(Player player, int page) {
-        if (FileManager.isBackingUp()) return;
-        if (FileManager.isRollingBack()) return;
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            player.closeInventory();
+            return;
+        }
         PluginControl.updateCacheData();
         FileManager.ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         List<ItemStack> items = new ArrayList();
@@ -398,8 +407,10 @@ public class GUI
     }
     
     public static void openBuying(Player player, long uid) {
-        if (FileManager.isBackingUp()) return;
-        if (FileManager.isRollingBack()) return;
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            player.closeInventory();
+            return;
+        }
         PluginControl.updateCacheData();
         FileManager.ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         GlobalMarket market = GlobalMarket.getMarket();
@@ -447,8 +458,10 @@ public class GUI
     }
     
     public static void openSelling(Player player, long uid) {
-        if (FileManager.isBackingUp()) return;
-        if (FileManager.isRollingBack()) return;
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            player.closeInventory();
+            return;
+        }
         PluginControl.updateCacheData();
         FileManager.ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         GlobalMarket market = GlobalMarket.getMarket();
@@ -497,8 +510,10 @@ public class GUI
     }
     
     public static void openBidding(Player player, long uid) {
-        if (FileManager.isBackingUp()) return;
-        if (FileManager.isRollingBack()) return;
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            player.closeInventory();
+            return;
+        }
         PluginControl.updateCacheData();
         FileManager.ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         GlobalMarket market = GlobalMarket.getMarket();
@@ -537,8 +552,10 @@ public class GUI
     }
     
     public static void openViewer(Player player, UUID uuid, int page) {
-        if (FileManager.isBackingUp()) return;
-        if (FileManager.isRollingBack()) return;
+        if (FileManager.isBackingUp() || FileManager.isRollingBack() || PluginControl.isWorldDisabled(player)) {
+            player.closeInventory();
+            return;
+        }
         PluginControl.updateCacheData();
         FileManager.ProtectedConfiguration config = FileManager.Files.CONFIG.getFile();
         GlobalMarket market = GlobalMarket.getMarket();
