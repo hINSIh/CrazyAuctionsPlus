@@ -174,7 +174,7 @@ public class GUI
         switch (type) {
             case SELL: {
                 shopType.put(player.getUniqueId(), ShopType.SELL);
-                if (crazyAuctions.isBiddingEnabled()) {
+                if (crazyAuctions.isSellingEnabled()) {
                     options.add("Shopping.Selling");
                 }
                 options.add("WhatIsThis.SellingShop");
@@ -182,7 +182,7 @@ public class GUI
             }
             case BID: {
                 shopType.put(player.getUniqueId(), ShopType.BID);
-                if (crazyAuctions.isSellingEnabled()) {
+                if (crazyAuctions.isBiddingEnabled()) {
                     options.add("Shopping.Bidding");
                 }
                 options.add("WhatIsThis.BiddingShop");
@@ -198,9 +198,7 @@ public class GUI
             }
             case ANY: {
                 shopType.put(player.getUniqueId(), ShopType.ANY);
-                if (crazyAuctions.isSellingEnabled() && crazyAuctions.isBuyingEnabled()) {
-                    options.add("Shopping.Others");
-                }
+                options.add("Shopping.Others");
                 options.add("WhatIsThis.MainShop");
                 break;
             }
