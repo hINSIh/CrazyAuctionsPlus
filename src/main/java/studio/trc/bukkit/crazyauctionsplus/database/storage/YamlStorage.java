@@ -95,7 +95,6 @@ public class YamlStorage
                             config.get("Items." + path + ".Full-Time") != null ? config.getLong("Items." + path + ".Full-Time") : 0,
                             config.get("Items." + path + ".Never-Expire") != null ? config.getBoolean("Items." + path + ".Never-Expire") : false
                         );
-//                        im.setUID(config.get("Items." + path + ".UID") != null ? config.getLong("Items." + path + ".UID") : Long.valueOf(path));
                     } catch (Exception ex) {
                         continue;
                     }
@@ -184,9 +183,9 @@ public class YamlStorage
             id++;
             boolean b = false;
             for (ItemMail im : mailBox) {
-                if (im.getUID() == id) { //如果有任何一个商品的UID等于变量id，即弃
-                    b = true; //继续执行循环，不break
-                    break; // 停止，先+1再说
+                if (im.getUID() == id) {
+                    b = true;
+                    break;
                 }
             }
             if (b) continue;

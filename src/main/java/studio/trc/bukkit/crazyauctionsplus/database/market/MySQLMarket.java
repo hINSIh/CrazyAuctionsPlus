@@ -166,7 +166,7 @@ public class MySQLMarket
             statement.setString(1, yamlMarket.saveToString());
             executeUpdate(statement);
         } catch (SQLException ex) {
-            if (Main.language.get("MySQL-DataSavingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("DataSaveingError").replace("{error}", ex.getLocalizedMessage()).replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+            if (Main.language.get("MySQL-DataSavingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataSavingError").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
             try {
                 if (getConnection().isClosed()) repairConnection();
             } catch (SQLException ex1) {}
@@ -239,7 +239,7 @@ public class MySQLMarket
                 executeUpdate(createMarket);
             }
         } catch (SQLException | InvalidConfigurationException | NullPointerException ex) {
-            if (Main.language.get("MySQL-DataReadingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataReadingError").replace("{error}", ex.getLocalizedMessage()).replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+            if (Main.language.get("MySQL-DataReadingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataReadingError").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
             try {
                 if (getConnection().isClosed()) repairConnection();
             } catch (SQLException ex1) {}

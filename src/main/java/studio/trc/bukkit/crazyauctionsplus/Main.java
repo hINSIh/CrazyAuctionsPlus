@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,17 +41,17 @@ public class Main
     public static FileManager fileManager = FileManager.getInstance();
     public static CrazyAuctions crazyAuctions = CrazyAuctions.getInstance();
     
-    public static Main m;
+    public static Main main;
     public static Properties language = new Properties();
     
     public static Main getInstance() {
-        return m;
+        return main;
     }
     
     @Override
     public void onEnable() {
         long time = System.currentTimeMillis();
-        m = this;
+        main = this;
         String lang = Locale.getDefault().toString();
         if (lang.equalsIgnoreCase("zh_cn")) {
             try {
@@ -102,16 +101,16 @@ public class Main
     public void onDisable() {
         int file = 0;
         Bukkit.getScheduler().cancelTask(file);
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        Bukkit.getOnlinePlayers().forEach((p) -> {
             p.closeInventory();
-        }
+        });
         GlobalMarket.getMarket().saveData();
         if (PluginControl.useMySQLStorage()) {
             try {
                 if (MySQLEngine.getInstance().getConnection() != null && !MySQLEngine.getInstance().getConnection().isClosed()) {
-                    for (MySQLStorage storage : MySQLStorage.cache.values()) {
+                    MySQLStorage.cache.values().forEach((storage) -> {
                         storage.saveData();
-                    }
+                    });
                     if (language.get("MySQL-DataSave") != null) getServer().getConsoleSender().sendMessage(language.getProperty("MySQL-DataSave").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
                 }
             } catch (Exception ex) {
@@ -121,9 +120,9 @@ public class Main
         if (PluginControl.useSQLiteStorage()) {
             try {
                 if (SQLiteEngine.getInstance().getConnection() != null && !SQLiteEngine.getInstance().getConnection().isClosed()) {
-                    for (SQLiteStorage storage : SQLiteStorage.cache.values()) {
+                    SQLiteStorage.cache.values().forEach((storage) -> {
                         storage.saveData();
-                    }
+                    });
                     if (language.get("SQLite-DataSave") != null) getServer().getConsoleSender().sendMessage(language.getProperty("SQLite-DataSave").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
                 }
             } catch (Exception ex) {
@@ -168,24 +167,22 @@ public class Main
         DataUpdateThread.start();
         RepricingTimeoutCheckThread = new Thread(() -> {
             while (asyncRun) {
-                for (UUID value : GUIAction.repricing.keySet()) {
-                    if (System.currentTimeMillis() >= Long.valueOf(GUIAction.repricing.get(value)[1].toString())) {
-                        try {
-                            MarketGoods mg  = (MarketGoods) GUIAction.repricing.get(value)[0];
-                            Player p = Bukkit.getPlayer(value);
-                            if (p != null) {
-                                Map<String, String> placeholders = new HashMap();
-                                try {
-                                    placeholders.put("%item%", mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : (String) mg.getItem().getClass().getMethod("getI18NDisplayName").invoke(mg.getItem()));
-                                } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                                    placeholders.put("%item%", mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : mg.getItem().getType().toString().toLowerCase().replace("_", " "));
-                                }
-                                p.sendMessage(Messages.getMessage("Repricing-Undo", placeholders));
+                GUIAction.repricing.keySet().stream().filter((value) -> (System.currentTimeMillis() >= Long.valueOf(GUIAction.repricing.get(value)[1].toString()))).forEachOrdered((value) -> {
+                    try {
+                        MarketGoods mg  = (MarketGoods) GUIAction.repricing.get(value)[0];
+                        Player p = Bukkit.getPlayer(value);
+                        if (p != null) {
+                            Map<String, String> placeholders = new HashMap();
+                            try {
+                                placeholders.put("%item%", mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : (String) mg.getItem().getClass().getMethod("getI18NDisplayName").invoke(mg.getItem()));
+                            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                                placeholders.put("%item%", mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : mg.getItem().getType().toString().toLowerCase().replace("_", " "));
                             }
-                            GUIAction.repricing.remove(p.getUniqueId());
-                        } catch (ClassCastException ex) {}
-                    }
-                }
+                            p.sendMessage(Messages.getMessage("Repricing-Undo", placeholders));
+                        }
+                        GUIAction.repricing.remove(p.getUniqueId());
+                    } catch (ClassCastException ex) {}
+                });
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {

@@ -73,7 +73,6 @@ public class MySQLStorage
                             yamlData.get("Items." + path + ".Full-Time") != null ? yamlData.getLong("Items." + path + ".Full-Time") : 0,
                             yamlData.get("Items." + path + ".Never-Expire") != null ? yamlData.getBoolean("Items." + path + ".Never-Expire") : false
                         );
-//                        im.setUID(yamlData.get("Items." + path + ".UID") != null ? yamlData.getLong("Items." + path + ".UID") : Long.valueOf(path));
                     } catch (Exception ex) {
                         continue;
                     }
@@ -159,13 +158,13 @@ public class MySQLStorage
     @Override
     public long makeUID() {
         long id = 0;
-        while (true) { //循环查找
+        while (true) {
             id++;
             boolean b = false;
             for (ItemMail im : mailBox) {
-                if (im.getUID() == id) { //如果有任何一个商品的UID等于变量id，即弃
-                    b = true; //继续执行循环，不break
-                    break; // 停止，先+1再说
+                if (im.getUID() == id) {
+                    b = true;
+                    break;
                 }
             }
             if (b) continue;
@@ -173,18 +172,7 @@ public class MySQLStorage
         }
         return id;
     }
-
-//    @Deprecated
-//    @Override
-//    protected void register(String sql) {
-//        while (isdatabaseReloading()) {}
-//        executeUpdate(sql);
-//    }
-//
-//    @Override
-//    protected void register(PreparedStatement statement) throws SQLException {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
+    
     private void register(UUID uuid) throws SQLException {
         String name = Bukkit.getOfflinePlayer(uuid) != null ? Bukkit.getOfflinePlayer(uuid).getName() : null;
         if (name == null) {

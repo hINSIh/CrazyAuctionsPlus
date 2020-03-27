@@ -7,6 +7,7 @@ import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
 import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.*;
 import studio.trc.bukkit.crazyauctionsplus.utils.enums.CancelledReason;
 import studio.trc.bukkit.crazyauctionsplus.utils.GUI;
+import studio.trc.bukkit.crazyauctionsplus.utils.FileManager;
 import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
 import studio.trc.bukkit.crazyauctionsplus.utils.MarketGoods;
@@ -36,7 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.lang.reflect.InvocationTargetException;
-import studio.trc.bukkit.crazyauctionsplus.utils.FileManager;
 
 public class GUIAction
     extends GUI
