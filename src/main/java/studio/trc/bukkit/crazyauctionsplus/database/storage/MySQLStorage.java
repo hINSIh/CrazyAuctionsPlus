@@ -20,9 +20,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import studio.trc.bukkit.crazyauctionsplus.Main;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
 import studio.trc.bukkit.crazyauctionsplus.database.engine.MySQLEngine;
 import studio.trc.bukkit.crazyauctionsplus.utils.ItemMail;
+import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
 
 public class MySQLStorage
     extends MySQLEngine
@@ -47,9 +49,15 @@ public class MySQLStorage
             } else {
                 register(uuid);
             }
-        } catch (SQLException | InvalidConfigurationException ex) {
-            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
-            return;
+        } catch (SQLException ex) {
+            if (Main.language.get("MySQL-DataReadingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataReadingError").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+            try {
+                if (super.getConnection().isClosed()) {
+                    super.repairConnection();
+                }
+            } catch (SQLException ex1) {}
+        } catch (InvalidConfigurationException | NullPointerException ex) {
+            if (Main.language.get("PlayerDataFailedToLoad") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("PlayerDataFailedToLoad").replace("{player}", Bukkit.getPlayer(uuid) != null ? Bukkit.getPlayer(uuid).getName() : "null").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
         }
         
         loadData();
@@ -189,41 +197,53 @@ public class MySQLStorage
     }
     
     public static MySQLStorage getPlayerData(Player player) {
-        MySQLStorage data = cache.get(player.getUniqueId());
-        if (data != null) {
-            if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
-                return data;
+        if (isItemMailReacquisition() && getUpdateDelay() == 0) {
+            return new MySQLStorage(player.getUniqueId());
+        } else {
+            MySQLStorage data = cache.get(player.getUniqueId());
+            if (data != null && getUpdateDelay() != 0) {
+                if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
+                    return data;
+                }
             }
+            data = new MySQLStorage(player.getUniqueId());
+            cache.put(player.getUniqueId(), data);
+            lastUpdateTime = System.currentTimeMillis();
+            return data;
         }
-        data = new MySQLStorage(player.getUniqueId());
-        cache.put(player.getUniqueId(), data);
-        lastUpdateTime = System.currentTimeMillis();
-        return data;
     }
     
     public static MySQLStorage getPlayerData(OfflinePlayer player) {
-        MySQLStorage data = cache.get(player.getUniqueId());
-        if (data != null) {
-            if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
-                return data;
+        if (isItemMailReacquisition() && getUpdateDelay() == 0) {
+            return new MySQLStorage(player.getUniqueId());
+        } else {
+            MySQLStorage data = cache.get(player.getUniqueId());
+            if (data != null && getUpdateDelay() != 0) {
+                if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
+                    return data;
+                }
             }
+            data = new MySQLStorage(player.getUniqueId());
+            cache.put(player.getUniqueId(), data);
+            lastUpdateTime = System.currentTimeMillis();
+            return data;
         }
-        data = new MySQLStorage(player.getUniqueId());
-        cache.put(player.getUniqueId(), data);
-        lastUpdateTime = System.currentTimeMillis();
-        return data;
     }
     
     public static MySQLStorage getPlayerData(UUID uuid) {
-        MySQLStorage data = cache.get(uuid);
-        if (data != null) {
-            if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
-                return data;
+        if (isItemMailReacquisition() && getUpdateDelay() == 0) {
+            return new MySQLStorage(uuid);
+        } else {
+            MySQLStorage data = cache.get(uuid);
+            if (data != null && getUpdateDelay() != 0) {
+                if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
+                    return data;
+                }
             }
+            data = new MySQLStorage(uuid);
+            cache.put(uuid, data);
+            lastUpdateTime = System.currentTimeMillis();
+            return data;
         }
-        data = new MySQLStorage(uuid);
-        cache.put(uuid, data);
-        lastUpdateTime = System.currentTimeMillis();
-        return data;
     }
 }

@@ -178,7 +178,7 @@ public class Main
                             } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                                 placeholders.put("%item%", mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : mg.getItem().getType().toString().toLowerCase().replace("_", " "));
                             }
-                            p.sendMessage(Messages.getMessage("Repricing-Undo", placeholders));
+                            Messages.sendMessage(p, "Repricing-Undo", placeholders);
                         }
                         GUIAction.repricing.remove(p.getUniqueId());
                     } catch (ClassCastException ex) {}

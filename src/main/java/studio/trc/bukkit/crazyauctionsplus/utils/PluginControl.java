@@ -295,14 +295,14 @@ public class PluginControl {
                 return true;
             }
         }
-        p.sendMessage(Messages.getMessage("Not-Online"));
+        Messages.sendMessage(p, "Not-Online");
         return false;
     }
     
     public static boolean hasCommandPermission(Player player, String perm, boolean message) {
         if (Files.CONFIG.getFile().getBoolean("Settings.Permissions.Commands." + perm + ".Default")) return true;
         if (!player.hasPermission(Files.CONFIG.getFile().getString("Settings.Permissions.Commands." + perm + ".Permission"))) {
-            if (message) player.sendMessage(Messages.getMessage("No-Permission"));
+            if (message) Messages.sendMessage(player, "No-Permission");
             return false;
         }
         return true;
@@ -311,7 +311,7 @@ public class PluginControl {
     public static boolean hasCommandPermission(CommandSender sender, String perm, boolean message) {
         if (Files.CONFIG.getFile().getBoolean("Settings.Permissions.Commands." + perm + ".Default")) return true;
         if (!sender.hasPermission(Files.CONFIG.getFile().getString("Settings.Permissions.Commands." + perm + ".Permission"))) {
-            if (message) sender.sendMessage(Messages.getMessage("No-Permission"));
+            if (message) Messages.sendMessage(sender, "No-Permission");
             return false;
         }
         return true;
@@ -479,7 +479,7 @@ public class PluginControl {
     
     public static String convertToTime(long time, boolean isExpire) {
         if (isExpire) {
-            return Messages.getMessage("Date-Settings.Never");
+            return Messages.getValue("Date-Settings.Never");
         }
         Calendar C = Calendar.getInstance();
         Calendar cal = Calendar.getInstance();
@@ -495,16 +495,16 @@ public class PluginControl {
         S += total;
         StringBuilder sb = new StringBuilder();
         if (D > 0) {
-            sb.append(D).append(Messages.getMessage("Date-Settings.Day")).append(" ");
+            sb.append(D).append(Messages.getValue("Date-Settings.Day")).append(" ");
         }
         if (H > 0) {
-            sb.append(H).append(Messages.getMessage("Date-Settings.Hour")).append(" ");
+            sb.append(H).append(Messages.getValue("Date-Settings.Hour")).append(" ");
         }
         if (M > 0) {
-            sb.append(M).append(Messages.getMessage("Date-Settings.Minute")).append(" ");
+            sb.append(M).append(Messages.getValue("Date-Settings.Minute")).append(" ");
         }
         if (S > 0) {
-            sb.append(S).append(Messages.getMessage("Date-Settings.Second"));
+            sb.append(S).append(Messages.getValue("Date-Settings.Second"));
         }
         return sb.toString();
     }
@@ -629,11 +629,11 @@ public class PluginControl {
                                             Bukkit.getPluginManager().callEvent(event);
                                         }
                                     }.runTask(Main.getInstance());
-                                    player.sendMessage(Messages.getMessage("Win-Bidding", placeholders));
+                                    Messages.sendMessage(player, "Win-Bidding", placeholders);
                                 }
                                 if (PluginControl.isOnline(owner) && PluginControl.getPlayer(owner) != null) {
                                     Player player = PluginControl.getPlayer(owner);
-                                    player.sendMessage(Messages.getMessage("Someone-Won-Players-Bid", placeholders));
+                                    Messages.sendMessage(player, "Someone-Won-Players-Bid", placeholders);
                                 }
                                 Storage playerdata = Storage.getPlayer(winner);
                                 ItemMail im = new ItemMail(playerdata.makeUID(), PluginControl.getOfflinePlayer(winner), mg.getItem(), fullExpireTime.getTimeInMillis(), false);
@@ -645,7 +645,7 @@ public class PluginControl {
                                 playerdata.addItem(im);
                                 market.removeGoods(mg.getUID());
                                 if (mg.getItemOwner().getPlayer() != null) {
-                                    mg.getItemOwner().getPlayer().sendMessage(Messages.getMessage("Item-Has-Expired"));
+                                    Messages.sendMessage(mg.getItemOwner().getPlayer(), "Item-Has-Expired");
                                 }
                             }
                             break;
@@ -654,7 +654,7 @@ public class PluginControl {
                             UUID owner = mg.getItemOwner().getUUID();
                             Player player = getPlayer(owner);
                             if (player != null) {
-                                player.sendMessage(Messages.getMessage("Item-Has-Expired"));
+                                Messages.sendMessage(player, "Item-Has-Expired");
                             }
                             AuctionExpireEvent event = new AuctionExpireEvent(player, mg, ShopType.BUY);
                             new BukkitRunnable() {
@@ -671,7 +671,7 @@ public class PluginControl {
                             UUID owner = mg.getItemOwner().getUUID();
                             Player player = getPlayer(owner);
                             if (player != null) {
-                                player.sendMessage(Messages.getMessage("Item-Has-Expired"));
+                                Messages.sendMessage(player, "Item-Has-Expired");
                             }
                             AuctionExpireEvent event = new AuctionExpireEvent(player, mg, ShopType.SELL);
                             new BukkitRunnable() {
@@ -992,7 +992,7 @@ public class PluginControl {
         }
         
         public static void backup() throws SQLException, IOException {
-            String fileName = Messages.getMessage("Admin-Command.Backup.Backup-Name").replace("%date%", new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())) + ".db";
+            String fileName = Messages.getValue("Admin-Command.Backup.Backup-Name").replace("%date%", new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())) + ".db";
             GlobalMarket market = GlobalMarket.getMarket();
             File folder = new File("plugins/CrazyAuctionsPlus/Backup");
             if (!folder.exists()) folder.mkdir();
@@ -1126,7 +1126,7 @@ public class PluginControl {
                                         PreparedStatement statement = engine.getConnection().prepareStatement("UPDATE " + MySQLEngine.getDatabaseName() + "." + MySQLEngine.getMarketTable() + " SET " +
                                                 "YamlMarket = ?");
                                         statement.setString(1, marketRS.getString("YamlMarket"));
-                                        engine.executeQuery(statement);
+                                        engine.executeUpdate(statement);
                                         GlobalMarket.getMarket().reloadData();
                                         break;
                                     }
@@ -1135,7 +1135,7 @@ public class PluginControl {
                                         PreparedStatement statement = engine.getConnection().prepareStatement("UPDATE " + SQLiteEngine.getMarketTable() + " SET " +
                                                 "YamlMarket = ?");
                                         statement.setString(1, marketRS.getString("YamlMarket"));
-                                        engine.executeQuery(statement);
+                                        engine.executeUpdate(statement);
                                         GlobalMarket.getMarket().reloadData();
                                         break;
                                     }
@@ -1322,12 +1322,16 @@ public class PluginControl {
                 }
                 for (CommandSender sender : senders) {
                     if (sender != null) {
-                        sender.sendMessage(Messages.getMessage("Admin-Command.RollBack.Successfully").replace("%file%", rollBackFile.getName()));
+                        Map<String, String> placeholders = new HashMap();
+                        placeholders.put("%file%", rollBackFile.getName());
+                        Messages.sendMessage(sender, "Admin-Command.RollBack.Successfully", placeholders);
                     }
                 }
             } catch (Exception ex) {
                 for (CommandSender sender : senders) {
-                    sender.sendMessage(Messages.getMessage("Admin-Command.RollBack.Failed").replace("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null"));
+                    Map<String, String> placeholders = new HashMap();
+                    placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
+                    Messages.sendMessage(sender, "Admin-Command.RollBack.Failed", placeholders);
                 }
             }
         }

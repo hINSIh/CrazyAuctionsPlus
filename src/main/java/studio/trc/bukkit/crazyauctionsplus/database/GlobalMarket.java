@@ -44,6 +44,11 @@ public interface GlobalMarket
     public void removeGoods(long uid);
     
     /**
+     * Clear global market.
+     */
+    public void clearGlobalMarket();
+    
+    /**
      * Save market data
      */
     public void saveData();

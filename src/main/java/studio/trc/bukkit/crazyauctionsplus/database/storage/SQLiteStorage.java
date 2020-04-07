@@ -20,9 +20,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import studio.trc.bukkit.crazyauctionsplus.Main;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
 import studio.trc.bukkit.crazyauctionsplus.database.engine.SQLiteEngine;
 import studio.trc.bukkit.crazyauctionsplus.utils.ItemMail;
+import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
 
 public class SQLiteStorage
     extends SQLiteEngine
@@ -47,9 +49,15 @@ public class SQLiteStorage
             } else {
                 register(uuid);
             }
-        } catch (SQLException | InvalidConfigurationException ex) {
-            Logger.getLogger(SQLiteStorage.class.getName()).log(Level.SEVERE, null, ex);
-            return;
+        } catch (SQLException ex) {
+            if (Main.language.get("SQLite-DataReadingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("SQLite-DataReadingError").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+            try {
+                if (super.getConnection().isClosed()) {
+                    super.repairConnection();
+                }
+            } catch (SQLException ex1) {}
+        } catch (InvalidConfigurationException | NullPointerException ex) {
+            if (Main.language.get("PlayerDataFailedToLoad") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("PlayerDataFailedToLoad").replace("{player}", Bukkit.getPlayer(uuid) != null ? Bukkit.getPlayer(uuid).getName() : "null").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
         }
         
         loadData();
@@ -176,7 +184,7 @@ public class SQLiteStorage
     private void register(UUID uuid) throws SQLException {
         String name = Bukkit.getOfflinePlayer(uuid) != null ? Bukkit.getOfflinePlayer(uuid).getName() : null;
         if (name == null) {
-            name = "Null";
+            name = "null";
         }
         PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getItemMailTable()
                 + "(UUID, Name, YamlData) "
@@ -189,41 +197,53 @@ public class SQLiteStorage
     }
     
     public static SQLiteStorage getPlayerData(Player player) {
-        SQLiteStorage data = cache.get(player.getUniqueId());
-        if (data != null) {
-            if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
-                return data;
+        if (isItemMailReacquisition() && getUpdateDelay() == 0) {
+            return new SQLiteStorage(player.getUniqueId());
+        } else {
+            SQLiteStorage data = cache.get(player.getUniqueId());
+            if (data != null && getUpdateDelay() != 0) {
+                if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
+                    return data;
+                }
             }
+            data = new SQLiteStorage(player.getUniqueId());
+            cache.put(player.getUniqueId(), data);
+            lastUpdateTime = System.currentTimeMillis();
+            return data;
         }
-        data = new SQLiteStorage(player.getUniqueId());
-        cache.put(player.getUniqueId(), data);
-        lastUpdateTime = System.currentTimeMillis();
-        return data;
     }
     
     public static SQLiteStorage getPlayerData(OfflinePlayer player) {
-        SQLiteStorage data = cache.get(player.getUniqueId());
-        if (data != null) {
-            if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
-                return data;
+        if (isItemMailReacquisition() && getUpdateDelay() == 0) {
+            return new SQLiteStorage(player.getUniqueId());
+        } else {
+            SQLiteStorage data = cache.get(player.getUniqueId());
+            if (data != null && getUpdateDelay() != 0) {
+                if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
+                    return data;
+                }
             }
+            data = new SQLiteStorage(player.getUniqueId());
+            cache.put(player.getUniqueId(), data);
+            lastUpdateTime = System.currentTimeMillis();
+            return data;
         }
-        data = new SQLiteStorage(player.getUniqueId());
-        cache.put(player.getUniqueId(), data);
-        lastUpdateTime = System.currentTimeMillis();
-        return data;
     }
     
     public static SQLiteStorage getPlayerData(UUID uuid) {
-        SQLiteStorage data = cache.get(uuid);
-        if (data != null) {
-            if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
-                return data;
+        if (isItemMailReacquisition() && getUpdateDelay() == 0) {
+            return new SQLiteStorage(uuid);
+        } else {
+            SQLiteStorage data = cache.get(uuid);
+            if (data != null && getUpdateDelay() != 0) {
+                if (!isItemMailReacquisition() || System.currentTimeMillis() - lastUpdateTime <= getUpdateDelay() * 1000) {
+                    return data;
+                }
             }
+            data = new SQLiteStorage(uuid);
+            cache.put(uuid, data);
+            lastUpdateTime = System.currentTimeMillis();
+            return data;
         }
-        data = new SQLiteStorage(uuid);
-        cache.put(uuid, data);
-        lastUpdateTime = System.currentTimeMillis();
-        return data;
     }
 }

@@ -98,6 +98,12 @@ public class YamlMarket
         }
         saveData();
     }
+    
+    @Override
+    public void clearGlobalMarket() {
+        marketgoods.clear();
+        saveData();
+    }
 
     @Override
     public void saveData() {
