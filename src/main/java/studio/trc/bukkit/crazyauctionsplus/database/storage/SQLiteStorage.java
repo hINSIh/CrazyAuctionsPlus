@@ -23,14 +23,14 @@ import org.bukkit.inventory.ItemStack;
 import studio.trc.bukkit.crazyauctionsplus.Main;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
 import studio.trc.bukkit.crazyauctionsplus.database.engine.SQLiteEngine;
-import studio.trc.bukkit.crazyauctionsplus.utils.ItemMail;
-import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
+import studio.trc.bukkit.crazyauctionsplus.util.ItemMail;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl;
 
 public class SQLiteStorage
     extends SQLiteEngine
     implements Storage
 {
-    public static final Map<UUID, SQLiteStorage> cache = new HashMap();
+    public static volatile Map<UUID, SQLiteStorage> cache = new HashMap();
     
     private static long lastUpdateTime = System.currentTimeMillis();
     
@@ -136,7 +136,25 @@ public class SQLiteStorage
 
     @Override
     public List<ItemMail> getMailBox() {
+        boolean save = false;
+        for (int i = mailBox.size() - 1;i > -1;i--) {
+            if (mailBox.get(i).getItem() == null || mailBox.get(i).getItem().getType().equals(Material.AIR)) {
+                mailBox.remove(i);
+                save = true;
+            }
+        }
+        if (save) saveData();
         return mailBox;
+    }
+    
+    @Override
+    public ItemMail getMail(long uid) {
+        for (ItemMail im : mailBox) {
+            if (im.getUID() == uid) {
+                return im;
+            }
+        }
+        return null;
     }
 
     @Override

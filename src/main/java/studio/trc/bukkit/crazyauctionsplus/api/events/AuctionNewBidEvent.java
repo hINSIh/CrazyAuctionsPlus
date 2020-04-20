@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import studio.trc.bukkit.crazyauctionsplus.utils.MarketGoods;
+import studio.trc.bukkit.crazyauctionsplus.util.MarketGoods;
 
 /**
  * This event is fired when a player places a new bid onto an item in the auction house.

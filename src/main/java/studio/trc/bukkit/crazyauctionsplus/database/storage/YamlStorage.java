@@ -19,13 +19,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import studio.trc.bukkit.crazyauctionsplus.utils.ItemMail;
+import studio.trc.bukkit.crazyauctionsplus.util.ItemMail;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
 
 public class YamlStorage
     implements Storage
 {
-    public static final Map<UUID, YamlStorage> cache = new HashMap();
+    public static volatile Map<UUID, YamlStorage> cache = new HashMap();
     
     private final UUID uuid;
     private final YamlConfiguration config = new YamlConfiguration();
@@ -145,6 +145,16 @@ public class YamlStorage
         }
         if (save) saveData();
         return mailBox;
+    }
+    
+    @Override
+    public ItemMail getMail(long uid) {
+        for (ItemMail im : mailBox) {
+            if (im.getUID() == uid) {
+                return im;
+            }
+        }
+        return null;
     }
 
     @Override

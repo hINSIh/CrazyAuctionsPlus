@@ -9,8 +9,8 @@ import java.sql.SQLException;
 import studio.trc.bukkit.crazyauctionsplus.Main;
 import studio.trc.bukkit.crazyauctionsplus.database.DatabaseEngine;
 import studio.trc.bukkit.crazyauctionsplus.database.StorageMethod;
-import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.*;
-import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
+import studio.trc.bukkit.crazyauctionsplus.util.FileManager.*;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl;
 
 public class MySQLEngine
     implements DatabaseEngine

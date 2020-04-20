@@ -24,20 +24,23 @@ import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
 import studio.trc.bukkit.crazyauctionsplus.database.engine.MySQLEngine;
 import studio.trc.bukkit.crazyauctionsplus.database.engine.SQLiteEngine;
 import studio.trc.bukkit.crazyauctionsplus.database.StorageMethod;
-import studio.trc.bukkit.crazyauctionsplus.utils.Category;
-import studio.trc.bukkit.crazyauctionsplus.utils.CrazyAuctions;
-import studio.trc.bukkit.crazyauctionsplus.utils.FileManager;
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.Messages;
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.Version;
-import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
-import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl.ReloadType;
-import studio.trc.bukkit.crazyauctionsplus.utils.FileManager.Files;
-import studio.trc.bukkit.crazyauctionsplus.utils.ItemOwner;
-import studio.trc.bukkit.crazyauctionsplus.utils.MarketGoods;
-import studio.trc.bukkit.crazyauctionsplus.utils.ItemCollection;
+import studio.trc.bukkit.crazyauctionsplus.database.Storage;
+import studio.trc.bukkit.crazyauctionsplus.util.GUI;
+import studio.trc.bukkit.crazyauctionsplus.util.ItemMail;
+import studio.trc.bukkit.crazyauctionsplus.util.Category;
+import studio.trc.bukkit.crazyauctionsplus.util.CrazyAuctions;
+import studio.trc.bukkit.crazyauctionsplus.util.FileManager;
+import studio.trc.bukkit.crazyauctionsplus.util.enums.Messages;
+import studio.trc.bukkit.crazyauctionsplus.util.enums.ShopType;
+import studio.trc.bukkit.crazyauctionsplus.util.enums.Version;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl.ReloadType;
+import studio.trc.bukkit.crazyauctionsplus.util.FileManager.Files;
+import studio.trc.bukkit.crazyauctionsplus.util.ItemOwner;
+import studio.trc.bukkit.crazyauctionsplus.util.MarketGoods;
+import studio.trc.bukkit.crazyauctionsplus.util.ItemCollection;
 import studio.trc.bukkit.crazyauctionsplus.api.events.AuctionListEvent;
-import studio.trc.bukkit.crazyauctionsplus.events.GUIAction;
+import studio.trc.bukkit.crazyauctionsplus.event.GUIAction;
 import studio.trc.bukkit.crazyauctionsplus.Main;
 
 import org.bukkit.Bukkit;
@@ -53,7 +56,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import studio.trc.bukkit.crazyauctionsplus.utils.GUI;
 
 public class PluginCommand
     implements CommandExecutor, TabCompleter
@@ -383,8 +385,12 @@ public class PluginCommand
                                             nosp = Integer.valueOf(Messages.getValue("Admin-Command.Market.List.Number-Of-Single-Page"));
                                         } catch (NumberFormatException ex) {}
                                         StringBuilder formatList = new StringBuilder();
+                                        int maxpage = ((int) list.size() / nosp) + 1;
+                                        if (maxpage < page) {
+                                            page = maxpage;
+                                        }
                                         for (int i = page * nosp - nosp;i < list.size() && i < page * nosp;i++) {
-                                            String format = Messages.getValue("Admin-Command.Market.List.Format").replace("%uid%", String.valueOf(list.get(i).getUID())).replace("%money%", String.valueOf(list.get(i).getShopType().equals(ShopType.BUY) ? list.get(i).getReward() : list.get(i).getPrice()));
+                                            String format = Messages.getValue("Admin-Command.Market.List.Format").replace("%uid%", String.valueOf(list.get(i).getUID())).replace("%money%", String.valueOf(list.get(i).getShopType().equals(ShopType.BUY) ? list.get(i).getReward() : list.get(i).getPrice())).replace("%owner%", list.get(i).getItemOwner().getName());
                                             try {
                                                 format = format.replace("%item%", list.get(i).getItem().getItemMeta().hasDisplayName() ? list.get(i).getItem().getItemMeta().getDisplayName() : (String) list.get(i).getItem().getClass().getMethod("getI18NDisplayName").invoke(list.get(i).getItem()));
                                             } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
@@ -392,7 +398,6 @@ public class PluginCommand
                                             }
                                             formatList.append(format);
                                         }
-                                        int maxpage = ((int) list.size() / nosp) + 1;
                                         Map<String, String> placeholders = new HashMap();
                                         placeholders.put("%format%", formatList.toString());
                                         placeholders.put("%page%", String.valueOf(page));
@@ -501,18 +506,17 @@ public class PluginCommand
                                         return true;
                                     }
                                     if (marketConfirm.containsKey(sender) && marketConfirm.get(sender).equalsIgnoreCase("ca admin market download")) {
-                                        String fileName = Messages.getValue("Admin-Command.Market.Download.File-Name").replace("%date%", new SimpleDateFormat("yyyy-MM-hh-HH-mm-ss").format(new Date())) + ".yml";
-                                        File dir = new File("plugins/CrazyAuctionsPlus/Download/");
-                                        if (!dir.exists()) {
-                                            dir.mkdir();
+                                        String fileName = Files.CONFIG.getFile().getString("Settings.Upload.Market").replace("%date%", new SimpleDateFormat("yyyy-MM-hh-HH-mm-ss").format(new Date()));
+                                        File file = new File(fileName);
+                                        if (file.getParent() != null) {
+                                            new File(file.getParent()).mkdirs();
                                         }
-                                        File yamlFile = new File(dir, fileName);
-                                        if (!yamlFile.exists()) {
+                                        if (!file.exists()) {
                                             try {
-                                                yamlFile.createNewFile();
+                                                file.createNewFile();
                                             } catch (IOException ex) {}
                                         }
-                                        try (OutputStream out = new FileOutputStream(yamlFile)) {
+                                        try (OutputStream out = new FileOutputStream(file)) {
                                             out.write(market.getYamlData().saveToString().getBytes());
                                         } catch (IOException ex) {
                                             Map<String, String> placeholders = new HashMap();
@@ -522,7 +526,7 @@ public class PluginCommand
                                             return true;
                                         }
                                         Map<String, String> placeholders = new HashMap();
-                                        placeholders.put("%path%", "plugins/CrazyAuctionsPlus/Download/" + fileName);
+                                        placeholders.put("%path%", fileName);
                                         Messages.sendMessage(sender, "Admin-Command.Market.Download.Succeeded", placeholders);
                                         marketConfirm.remove(sender);
                                         return true;
@@ -538,11 +542,11 @@ public class PluginCommand
                                         return true;
                                     }
                                     if (marketConfirm.containsKey(sender) && marketConfirm.get(sender).equalsIgnoreCase("ca admin market upload")) {
-                                        String fileName = Messages.getValue("Admin-Command.Market.Upload.File-Name") + ".yml";
-                                        File file = new File("plugins/CrazyAuctionsPlus/", fileName);
+                                        String fileName = Files.CONFIG.getFile().getString("Settings.Upload.Market").replace("%date%", new SimpleDateFormat("yyyy-MM-hh-HH-mm-ss").format(new Date()));
+                                        File file = new File(fileName);
                                         if (!file.exists()) {
                                             Map<String, String> placeholders = new HashMap();
-                                            placeholders.put("%file%", "plugins/CrazyAuctionsPlus/" + Messages.getValue("Admin-Command.Market.Upload.File-Name") + ".yml");
+                                            placeholders.put("%file%", fileName);
                                             Messages.sendMessage(sender, "Admin-Command.Market.Upload.File-Not-Exist", placeholders);
                                             marketConfirm.remove(sender);
                                             return true;
@@ -605,6 +609,413 @@ public class PluginCommand
                             } else {
                                 Messages.sendMessage(sender, "Admin-Command.Market.Help");
                                 return true;
+                            }
+                        } else if (args[1].equalsIgnoreCase("player")) {
+                            if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player", true)) return true;
+                            if (args.length == 2) {
+                                Messages.sendMessage(sender, "Admin-Command.Player.Help");
+                                return true;
+                            } else if (args.length == 3) {
+                                if (args[2].equalsIgnoreCase("confirm")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.Confirm", true)) return true;
+                                    if (itemMailConfirm.containsKey(sender)) {
+                                        Bukkit.dispatchCommand(sender, itemMailConfirm.get(sender));
+                                        return true;
+                                    } else {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Confirm.Invalid");
+                                        return true;
+                                    }
+                                } else {
+                                    Messages.sendMessage(sender, "Admin-Command.Player.Help");
+                                    return true;
+                                }
+                            } else if (args.length >= 4) {
+                                if (args[3].equalsIgnoreCase("list")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.List", true)) return true;
+                                    Player player = Bukkit.getPlayer(args[2]);
+                                    UUID uuid;
+                                    String name;
+                                    if (player != null) {
+                                        uuid = player.getUniqueId();
+                                        name = player.getName();
+                                    } else {
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%player%", args[2]);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.List.Please-Wait", placeholders);
+                                        OfflinePlayer offlineplayer = Bukkit.getOfflinePlayer(args[2]);
+                                        if (offlineplayer != null) {
+                                            uuid = offlineplayer.getUniqueId();
+                                            name = offlineplayer.getName();
+                                        } else {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.List.Player-Not-Exist", placeholders);
+                                            return true;
+                                        }
+                                    }
+                                    if (args.length == 4) {
+                                        List<ItemMail> list = Storage.getPlayer(uuid).getMailBox();
+                                        if (list.isEmpty()) {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.List.Empty");
+                                            return true;
+                                        }
+                                        int page = 1;
+                                        int nosp = 9;
+                                        try {
+                                            nosp = Integer.valueOf(Messages.getValue("Admin-Command.Player.List.Number-Of-Single-Page"));
+                                        } catch (NumberFormatException ex) {}
+                                        StringBuilder formatList = new StringBuilder();
+                                        for (int i = page * nosp - nosp;i < list.size() && i < page * nosp;i++) {
+                                            String format = Messages.getValue("Admin-Command.Player.List.Format").replace("%uid%", String.valueOf(list.get(i).getUID()));
+                                            try {
+                                                format = format.replace("%item%", list.get(i).getItem().getItemMeta().hasDisplayName() ? list.get(i).getItem().getItemMeta().getDisplayName() : (String) list.get(i).getItem().getClass().getMethod("getI18NDisplayName").invoke(list.get(i).getItem()));
+                                            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                                                format = format.replace("%item%", list.get(i).getItem().getItemMeta().hasDisplayName() ? list.get(i).getItem().getItemMeta().getDisplayName() : list.get(i).getItem().getType().toString().toLowerCase().replace("_", " "));
+                                            }
+                                            formatList.append(format);
+                                        }
+                                        int maxpage = ((int) list.size() / nosp) + 1;
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%player%", name);
+                                        placeholders.put("%format%", formatList.toString());
+                                        placeholders.put("%page%", String.valueOf(page));
+                                        placeholders.put("%maxpage%", String.valueOf(maxpage));
+                                        placeholders.put("%nextpage%", String.valueOf(page + 1));
+                                        Map<String, Boolean> visible = new HashMap();
+                                        visible.put("{hasnext}", maxpage > page);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.List.Messages", placeholders, visible);
+                                        return true;
+                                    } else if (args.length >= 5) {
+                                        List<ItemMail> list = Storage.getPlayer(uuid).getMailBox();
+                                        if (list.isEmpty()) {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.List.Empty");
+                                            return true;
+                                        }
+                                        int page = 1;
+                                        try {
+                                            page = Integer.valueOf(args[4]);
+                                        } catch (NumberFormatException ex) {}
+                                        int nosp = 9;
+                                        try {
+                                            nosp = Integer.valueOf(Messages.getValue("Admin-Command.Player.List.Number-Of-Single-Page"));
+                                        } catch (NumberFormatException ex) {}
+                                        StringBuilder formatList = new StringBuilder();
+                                        int maxpage = ((int) list.size() / nosp) + 1;
+                                        if (maxpage < page) {
+                                            page = maxpage;
+                                        }
+                                        for (int i = page * nosp - nosp;i < list.size() && i < page * nosp;i++) {
+                                            String format = Messages.getValue("Admin-Command.Player.List.Format").replace("%uid%", String.valueOf(list.get(i).getUID()));
+                                            try {
+                                                format = format.replace("%item%", list.get(i).getItem().getItemMeta().hasDisplayName() ? list.get(i).getItem().getItemMeta().getDisplayName() : (String) list.get(i).getItem().getClass().getMethod("getI18NDisplayName").invoke(list.get(i).getItem()));
+                                            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                                                format = format.replace("%item%", list.get(i).getItem().getItemMeta().hasDisplayName() ? list.get(i).getItem().getItemMeta().getDisplayName() : list.get(i).getItem().getType().toString().toLowerCase().replace("_", " "));
+                                            }
+                                            formatList.append(format);
+                                        }
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%player%", name);
+                                        placeholders.put("%format%", formatList.toString());
+                                        placeholders.put("%page%", String.valueOf(page));
+                                        placeholders.put("%maxpage%", String.valueOf(maxpage));
+                                        placeholders.put("%nextpage%", String.valueOf(page + 1));
+                                        Map<String, Boolean> visible = new HashMap();
+                                        visible.put("{hasnext}", maxpage > page);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.List.Messages", placeholders, visible);
+                                        return true;
+                                    }
+                                } else if (args[3].equalsIgnoreCase("clear")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.Clear", true)) return true;
+                                    if (args.length == 4) {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Clear.Help");
+                                        return true;
+                                    }
+                                    Player player = Bukkit.getPlayer(args[2]);
+                                    UUID uuid;
+                                    String name;
+                                    if (player != null) {
+                                        uuid = player.getUniqueId();
+                                        name = player.getName();
+                                    } else {
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%player%", args[2]);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Clear.Please-Wait", placeholders);
+                                        OfflinePlayer offlineplayer = Bukkit.getOfflinePlayer(args[2]);
+                                        if (offlineplayer != null) {
+                                            uuid = offlineplayer.getUniqueId();
+                                            name = offlineplayer.getName();
+                                        } else {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Clear.Player-Not-Exist", placeholders);
+                                            return true;
+                                        }
+                                    }
+                                    if (args[4].equalsIgnoreCase("market")) {
+                                        GlobalMarket market = GlobalMarket.getMarket();
+                                        if (itemMailConfirm.containsKey(sender) && itemMailConfirm.get(sender).equalsIgnoreCase("ca admin player " + name + " clear market")) {
+                                            List<MarketGoods> marketGoods = market.getItems();
+                                            for (int i = marketGoods.size() - 1;i > -1;i--) {
+                                                if (marketGoods.get(i).getItemOwner().getUUID().equals(uuid)) {
+                                                    marketGoods.remove(i);
+                                                }
+                                            }
+                                            market.saveData();
+                                            itemMailConfirm.remove(sender);
+                                            Map<String, String> placeholders = new HashMap();
+                                            placeholders.put("%player%", name);
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Clear.Market", placeholders);
+                                            return true;
+                                        } else {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Confirm.Confirm");
+                                            itemMailConfirm.put(sender, "ca admin player " + name + " clear market");
+                                            return true;
+                                        }
+                                    } else if (args[4].equalsIgnoreCase("mail")) {
+                                        if (itemMailConfirm.containsKey(sender) && itemMailConfirm.get(sender).equalsIgnoreCase("ca admin player " + name + " clear mail")) {
+                                            Storage.getPlayer(uuid).clearMailBox();
+                                            itemMailConfirm.remove(sender);
+                                            Map<String, String> placeholders = new HashMap();
+                                            placeholders.put("%player%", name);
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Clear.ItemMail", placeholders);
+                                            return true;
+                                        } else {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Confirm.Confirm");
+                                            itemMailConfirm.put(sender, "ca admin player " + name + " clear mail");
+                                            return true;
+                                        }
+                                    } else {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Clear.Help");
+                                        return true;
+                                    }
+                                } else if (args[3].equalsIgnoreCase("delete")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.Delete", true)) return true;
+                                    if (args.length == 4) {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Delete.Help");
+                                        return true;
+                                    } else if (args.length >= 5) {
+                                        Player player = Bukkit.getPlayer(args[2]);
+                                        UUID uuid;
+                                        String name;
+                                        if (player != null) {
+                                            uuid = player.getUniqueId();
+                                            name = player.getName();
+                                        } else {
+                                            Map<String, String> placeholders = new HashMap();
+                                            placeholders.put("%player%", args[2]);
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Delete.Please-Wait", placeholders);
+                                            OfflinePlayer offlineplayer = Bukkit.getOfflinePlayer(args[2]);
+                                            if (offlineplayer != null) {
+                                                uuid = offlineplayer.getUniqueId();
+                                                name = offlineplayer.getName();
+                                            } else {
+                                                Messages.sendMessage(sender, "Admin-Command.Player.Delete.Player-Not-Exist", placeholders);
+                                                return true;
+                                            }
+                                        }
+                                        Storage playerdata = Storage.getPlayer(uuid);
+                                        long uid;
+                                        try {
+                                            uid = Long.valueOf(args[4]);
+                                        } catch (NumberFormatException ex) {
+                                            Map<String, String> placeholders = new HashMap();
+                                            placeholders.put("%arg%", args[4]);
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Delete.Not-A-Valid-Number", placeholders);
+                                            return true;
+                                        }
+                                        ItemMail mail = playerdata.getMail(uid);
+                                        if (mail == null) {
+                                            Map<String, String> placeholders = new HashMap();
+                                            placeholders.put("%uid%", String.valueOf(uid));
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Delete.Not-Exist", placeholders);
+                                            return true;
+                                        }
+                                        Map<String, String> placeholders = new HashMap();
+                                        try {
+                                            placeholders.put("%item%", mail.getItem().getItemMeta().hasDisplayName() ? mail.getItem().getItemMeta().getDisplayName() : (String) mail.getItem().getClass().getMethod("getI18NDisplayName").invoke(mail.getItem()));
+                                        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                                            placeholders.put("%item%", mail.getItem().getItemMeta().hasDisplayName() ? mail.getItem().getItemMeta().getDisplayName() : (String) mail.getItem().getType().toString().toLowerCase().replace("_", " "));
+                                        }
+                                        placeholders.put("%uid%", String.valueOf(uid));
+                                        placeholders.put("%player%", name);
+                                        playerdata.removeItem(mail);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Delete.Succeeded", placeholders);
+                                    }
+                                } else if (args[3].equalsIgnoreCase("view")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.View", true)) return true;
+                                    if (!(sender instanceof Player)) {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.View.Player-Only");
+                                        return true;
+                                    }
+                                    Player player = Bukkit.getPlayer(args[2]);
+                                    UUID uuid;
+                                    String name;
+                                    if (player != null) {
+                                        uuid = player.getUniqueId();
+                                        name = player.getName();
+                                    } else {
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%player%", args[2]);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.View.Please-Wait", placeholders);
+                                        OfflinePlayer offlineplayer = Bukkit.getOfflinePlayer(args[2]);
+                                        if (offlineplayer != null) {
+                                            uuid = offlineplayer.getUniqueId();
+                                            name = offlineplayer.getName();
+                                        } else {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.View.Player-Not-Exist", placeholders);
+                                            return true;
+                                        }
+                                    }
+                                    GUI.openPlayersMail((Player) sender, 1, uuid);
+                                    Map<String, String> placeholders = new HashMap();
+                                    placeholders.put("%player%", name);
+                                    Messages.sendMessage(sender, "Admin-Command.Player.View.Succeeded", placeholders);
+                                    return true;
+                                } else if (args[3].equalsIgnoreCase("download")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.Download", true)) return true;
+                                    Player player = Bukkit.getPlayer(args[2]);
+                                    UUID uuid;
+                                    String name;
+                                    if (player != null) {
+                                        uuid = player.getUniqueId();
+                                        name = player.getName();
+                                    } else {
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%player%", args[2]);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Download.Please-Wait", placeholders);
+                                        OfflinePlayer offlineplayer = Bukkit.getOfflinePlayer(args[2]);
+                                        if (offlineplayer != null) {
+                                            uuid = offlineplayer.getUniqueId();
+                                            name = offlineplayer.getName();
+                                        } else {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Download.Player-Not-Exist", placeholders);
+                                            return true;
+                                        }
+                                    }
+                                    if (PluginControl.getItemMailStorageMethod().equals(StorageMethod.YAML)) {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Download.Only-Database-Mode");
+                                        return true;
+                                    }
+                                    if (itemMailConfirm.containsKey(sender) && itemMailConfirm.get(sender).equalsIgnoreCase("ca admin player " + name + " download")) {
+                                        String fileName = Files.CONFIG.getFile().getString("Settings.Download.PlayerData").replace("%player%", name).replace("%uuid%", uuid.toString()).replace("%date%", new SimpleDateFormat("yyyy-MM-hh-HH-mm-ss").format(new Date()));
+                                        File file = new File(fileName);
+                                        if (file.getParent() != null) {
+                                            new File(file.getParent()).mkdirs();
+                                        }
+                                        if (!file.exists()) {
+                                            try {
+                                                file.createNewFile();
+                                            } catch (IOException ex) {}
+                                        }
+                                        try (OutputStream out = new FileOutputStream(file)) {
+                                            out.write(Storage.getPlayer(uuid).getYamlData().saveToString().getBytes());
+                                        } catch (IOException ex) {
+                                            Map<String, String> placeholders = new HashMap();
+                                            placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Download.Failed", placeholders);
+                                            itemMailConfirm.remove(sender);
+                                            return true;
+                                        }
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%path%", fileName);
+                                        placeholders.put("%player%", name);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Download.Succeeded", placeholders);
+                                        itemMailConfirm.remove(sender);
+                                        return true;
+                                    } else {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Confirm.Confirm");
+                                        itemMailConfirm.put(sender, "ca admin player " + name + " download");
+                                        return true;
+                                    }
+                                } else if (args[3].equalsIgnoreCase("upload")) {
+                                    if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.Upload", true)) return true;
+                                    Player player = Bukkit.getPlayer(args[2]);
+                                    UUID uuid;
+                                    String name;
+                                    if (player != null) {
+                                        uuid = player.getUniqueId();
+                                        name = player.getName();
+                                    } else {
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%player%", args[2]);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Upload.Please-Wait", placeholders);
+                                        OfflinePlayer offlineplayer = Bukkit.getOfflinePlayer(args[2]);
+                                        if (offlineplayer != null) {
+                                            uuid = offlineplayer.getUniqueId();
+                                            name = offlineplayer.getName();
+                                        } else {
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Upload.Player-Not-Exist", placeholders);
+                                            return true;
+                                        }
+                                    }
+                                    if (PluginControl.getItemMailStorageMethod().equals(StorageMethod.YAML)) {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Download.Only-Database-Mode");
+                                        return true;
+                                    }
+                                    if (itemMailConfirm.containsKey(sender) && itemMailConfirm.get(sender).equalsIgnoreCase("ca admin player " + name + " upload")) {
+                                        String fileName = Files.CONFIG.getFile().getString("Settings.Upload.PlayerData").replace("%player%", name).replace("%uuid%", uuid.toString()).replace("%date%", new SimpleDateFormat("yyyy-MM-hh-HH-mm-ss").format(new Date()));
+                                        File file = new File(fileName);
+                                        if (!file.exists()) {
+                                            Map<String, String> placeholders = new HashMap();
+                                            placeholders.put("%file%", fileName);
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Upload.File-Not-Exist", placeholders);
+                                            itemMailConfirm.remove(sender);
+                                            return true;
+                                        }
+                                        FileConfiguration config = new YamlConfiguration();
+                                        try (Reader reader = new InputStreamReader(new FileInputStream(file), "UTF-8")) {
+                                            config.load(reader);
+                                        } catch (IOException | InvalidConfigurationException ex) {
+                                            Map<String, String> placeholders = new HashMap();
+                                            placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
+                                            Messages.sendMessage(sender, "Admin-Command.Player.Upload.Failed", placeholders);
+                                            itemMailConfirm.remove(sender);
+                                            return true;
+                                        }
+                                        switch (PluginControl.getMarketStorageMethod()) {
+                                            case MySQL: {
+                                                MySQLEngine engine = MySQLEngine.getInstance();
+                                                try {
+                                                    PreparedStatement statement = engine.getConnection().prepareStatement("UPDATE " + MySQLEngine.getDatabaseName() + "." + MySQLEngine.getItemMailTable() + " SET "
+                                                            + "YamlData = ? WHERE UUID = ?");
+                                                    statement.setString(1, config.saveToString());
+                                                    statement.setString(2, uuid.toString());
+                                                    statement.executeUpdate();
+                                                } catch (SQLException ex) {
+                                                    Map<String, String> placeholders = new HashMap();
+                                                    placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
+                                                    Messages.sendMessage(sender, "Admin-Command.Player.Upload.Failed", placeholders);
+                                                    itemMailConfirm.remove(sender);
+                                                    return true;
+                                                }
+                                                break;
+                                            }
+                                            case SQLite: {
+                                                SQLiteEngine engine = SQLiteEngine.getInstance();
+                                                try {
+                                                    PreparedStatement statement = engine.getConnection().prepareStatement("UPDATE " + SQLiteEngine.getItemMailTable() + " SET "
+                                                            + "YamlMarket = ? WHERE UUID = ?");
+                                                    statement.setString(1, config.saveToString());
+                                                    statement.setString(2, uuid.toString());
+                                                    statement.executeUpdate();
+                                                } catch (SQLException ex) {
+                                                    Map<String, String> placeholders = new HashMap();
+                                                    placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
+                                                    Messages.sendMessage(sender, "Admin-Command.Player.Upload.Failed", placeholders);
+                                                    itemMailConfirm.remove(sender);
+                                                    return true;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                        Map<String, String> placeholders = new HashMap();
+                                        placeholders.put("%file%", fileName);
+                                        placeholders.put("%player%", name);
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Upload.Succeeded", placeholders);
+                                        itemMailConfirm.remove(sender);
+                                        return true;
+                                    } else {
+                                        Messages.sendMessage(sender, "Admin-Command.Player.Confirm.Confirm");
+                                        itemMailConfirm.put(sender, "ca admin player " + name + " upload");
+                                        return true;
+                                    }
+                                }
                             }
                         } else if (args[1].equalsIgnoreCase("itemcollection")) {
                             if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.ItemCollection", true)) return true;
@@ -900,7 +1311,7 @@ public class PluginCommand
                             return true;
                         }
                         if (!crazyAuctions.isBuyingEnabled()) {
-                            Messages.sendMessage(player, "Buying-Disable");
+                            Messages.sendMessage(player, "Buying-Disabled");
                             return true;
                         }
                         if (!PluginControl.hasCommandPermission(player, "Buy", true)) return true;
@@ -1021,7 +1432,7 @@ public class PluginCommand
                         ShopType type = ShopType.SELL;
                         if (args[0].equalsIgnoreCase("Sell")) {
                             if (!crazyAuctions.isSellingEnabled()) {
-                                Messages.sendMessage(player, "Selling-Disable");
+                                Messages.sendMessage(player, "Selling-Disabled");
                                 return true;
                             }
                             if (!PluginControl.hasCommandPermission(player, "Sell", true)) {
@@ -1031,7 +1442,7 @@ public class PluginCommand
                         } else if (args[0].equalsIgnoreCase("Bid")) {
                             type = ShopType.BID;
                             if (!crazyAuctions.isBiddingEnabled()) {
-                                Messages.sendMessage(player, "Bidding-Disable");
+                                Messages.sendMessage(player, "Bidding-Disabled");
                                 return true;
                             }
                             if (!PluginControl.hasCommandPermission(player, "Bid", true)) {
@@ -1361,6 +1772,38 @@ public class PluginCommand
                         }
                         return list;
                     }
+                    if (args[1].equalsIgnoreCase("player") && PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player", false)) {
+                        if (args.length == 3) {
+                            List<String> list = new ArrayList();
+                            for (Player player : Bukkit.getOnlinePlayers()) {
+                                if (player.getName().toLowerCase().startsWith(args[2].toLowerCase())) {
+                                    list.add(player.getName());
+                                }
+                            }
+                            if (PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.Confirm", false)) list.add("confirm");
+                            return list;
+                        } else if (args.length == 4) {
+                            List<String> list = new ArrayList();
+                            String[] subCommands = {"clear", "list", "view", "delete", "download", "upload"};
+                            for (String commands : subCommands) {
+                                if (commands.toLowerCase().startsWith(args[3].toLowerCase())) {
+                                    list.add(commands);
+                                }
+                            }
+                            return list;
+                        } else if (args.length >= 5) {
+                            if (args[3].equalsIgnoreCase("clear") && PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Player.SubCommands.Clear", false)) {
+                                List<String> list = new ArrayList();
+                                String[] subCommands = {"market", "mail"};
+                                for (String commands : subCommands) {
+                                    if (commands.toLowerCase().startsWith(args[4].toLowerCase())) {
+                                        list.add(commands);
+                                    }
+                                }
+                                return list;
+                            }
+                        }
+                    }
                     if (args[1].equalsIgnoreCase("itemcollection") && PluginControl.hasCommandPermission(sender, "Admin.SubCommands.ItemCollection", false)) {
                         if (args.length == 3) {
                             List<String> list = new ArrayList();
@@ -1404,7 +1847,7 @@ public class PluginCommand
                     }
                 }
                 List<String> list = new ArrayList();
-                for (String text : new String[]{"backup", "rollback", "info", "market", "synchronize", "itemcollection"}) {
+                for (String text : new String[]{"backup", "rollback", "info", "market", "player", "synchronize", "itemcollection"}) {
                     if (text.toLowerCase().startsWith(args[1].toLowerCase())) {
                         list.add(text);
                     }

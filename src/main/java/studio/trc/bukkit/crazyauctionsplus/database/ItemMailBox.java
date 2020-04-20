@@ -2,7 +2,7 @@ package studio.trc.bukkit.crazyauctionsplus.database;
 
 import java.util.List;
 
-import studio.trc.bukkit.crazyauctionsplus.utils.ItemMail;
+import studio.trc.bukkit.crazyauctionsplus.util.ItemMail;
 
 public interface ItemMailBox
 {
@@ -11,6 +11,13 @@ public interface ItemMailBox
      * @return 
      */
     public List<ItemMail> getMailBox();
+    
+    /**
+     * Get Item Mail on mailbox.
+     * @param uid item mail's uid
+     * @return 
+     */
+    public ItemMail getMail(long uid);
     
     /**
      * Add new item mail to player's mailbox

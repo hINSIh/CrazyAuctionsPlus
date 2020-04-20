@@ -90,6 +90,8 @@ Chinese:
         - ' &3/Ca Admin Backup &c- &a备份插件所有数据到本地目录（包括数据库）'
         - ' &3/Ca Admin RollBack [备份文件] &c- &a将当前所有的储存数据进行回档（不包含配置文件）'
         - ' &3/Ca Admin Info [玩家] &c- &a查看一名玩家的相关数据'
+        - ' &3/Ca Admin Market &c- &a操控市场相关数据信息'
+        - ' &3/Ca Admin Player &c- &a操控玩家相关数据信息'
         - ' &3/Ca Admin Synchronize &c- &a同步所有旧市场存贮的商品及玩家数据到Plus版本'
         - ' &3/Ca Admin ItemCollection &c- &a管理物品收藏'
         - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
@@ -126,7 +128,7 @@ Chinese:
                 Invalid: '{prefix}&c没有待确认的操作。'
             List:
                 Number-Of-Single-Page: 9
-                Format: '&6UID: &b%uid% &2- &r%item% &2- &e%money% ￥/n'
+                Format: '&6UID: &b%uid% &2- &r%item% &2- &e%money% ￥ &2- &6%owner%/n'
                 Empty: '{prefix}&a全球市场中没有商品。'
                 Messages:
                     - '{prefix}&e商品列表 &a%page%&7/&a%maxpage% 页'
@@ -146,16 +148,73 @@ Chinese:
                 Not-A-Valid-Number: '{prefix}&c%arg% 不是一个有效的数字。'
                 Succeeded: '{prefix}&a成功删除商品 &r%item% &7(UID:%uid%) &a.'
             Download: 
-                File-Name: 'GlobalMarket %date%'
                 Only-Database-Mode: '{prefix}&e只有启用了数据库模式才可以执行此操作！'
                 Succeeded: '{prefix}&a成功将全球市场的所有数据下载到本地目录 &e%path% &a。'
                 Failed: '{prefix}&c下载失败，发生错误: &e%error%'
             Upload: 
-                File-Name: 'Database'
                 Only-Database-Mode: '{prefix}&e只有启用了数据库模式才可以执行此操作！'
                 Succeeded: '{prefix}&a成功将文件 &c%file% &a的数据上传到数据库。'
                 File-Not-Exist: '{prefix}&c文件 &e%file% &c不存在！'
                 Failed: '{prefix}&c上传失败，发生错误: &e%error%'
+        Player:
+            Help:
+                - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+                - ' &3/Ca Admin Player Confirm &c- &a确定执行操作'
+                - ' &3/Ca Admin Player [玩家] Clear [market/mail] &c- &a清空此玩家的指定数据'
+                - ' &3/Ca Admin Player [玩家] List &8[页数] &c- &a列出此玩家的所有邮件'
+                - ' &3/Ca Admin Player [玩家] Delete [UID] &c- &a删除指定的邮件'
+                - ' &3/Ca Admin Player [玩家] View &c- &a使用GUI查看此玩家的邮箱界面'
+                - ' &3/Ca Admin Player [玩家] Download &c- &a将玩家数据下载到本地目录（仅数据库模式）'
+                - ' &3/Ca Admin Player [玩家] Upload &c- &a将玩家数据上传到数据库（仅数据库模式）'
+                - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+            Confirm:
+                Confirm: '{prefix}&6请使用命令 &e/ca admin player confirm &6以确认执行此操作'
+                Invalid: '{prefix}&c没有待确认的操作。'
+            List:
+                Player-Not-Exist: '{prefix}&c玩家 &e%player% &a不存在！'
+                Number-Of-Single-Page: 9
+                Format: '&6UID: &b%uid% &2- &r%item% /n'
+                Empty: '{prefix}&a这名玩家没有未取出的邮件。'
+                Messages:
+                    - '{prefix}&e玩家 &a%player% &e的邮件列表 &a%page%&7/&a%maxpage% 页'
+                    - '&7▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+                    - '%format%'
+                    - '&7▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+                    - '&a使用命令 &c/ca admin player %player% list %nextpage% &a查看下一页{hasnext}'
+                Please-Wait: '{prefix}&a正在查询离线玩家 &e%player% &a的数据...'
+            Clear: 
+                Player-Not-Exist: '{prefix}&c玩家 &e%player% &a不存在！'
+                Help: '{prefix}&c正确使用方式: &e/ca admin player [玩家] clear [market/mail]'
+                Market: '{prefix}&c已清空这名玩家在全球市场上的所有商品。'
+                ItemMail: '{prefix}&c已清空这名玩家的全部邮件。'
+                Please-Wait: '{prefix}&a正在查询离线玩家 &e%player% &a的数据...'
+            View:
+                Player-Not-Exist: '{prefix}&c玩家 &e%player% &a不存在！'
+                Players-Only: '{prefix}&c只有玩家才能使用这个命令！'
+                Please-Wait: '{prefix}&a正在查询离线玩家 &e%player% &a的数据...'
+                Succeeded: '{prefix}&a正在查看玩家 &e%player% &a的邮箱'
+            Delete:
+                Player-Not-Exist: '{prefix}&c玩家 &e%player% &a不存在！'
+                Help: '{prefix}&c正确使用方式: &e/ca admin player [玩家] delete [UID]'
+                Not-Exist: '{prefix}&cUID &e%uid% &c的邮件不存在！'
+                Not-A-Valid-Number: '{prefix}&c%arg% 不是一个有效的数字。'
+                Succeeded: '{prefix}&a成功删除邮件 &r%item% &7(UID:%uid%) &a.'
+                Please-Wait: '{prefix}&a正在查询离线玩家 &e%player% &a的数据...'
+            Download: 
+                Player-Not-Exist: '{prefix}&c玩家 &e%player% &a不存在！'
+                File-Name: '%player_uuid%'
+                Only-Database-Mode: '{prefix}&e只有玩家邮箱启用了数据库模式才可以执行此操作！'
+                Succeeded: '{prefix}&a成功将玩家 &e%player% &a的数据下载到本地目录 &c%path%&a。'
+                Failed: '{prefix}&c下载失败，发生错误: &e%error%'
+                Please-Wait: '{prefix}&a正在查询离线玩家 &e%player% &a的数据...'
+            Upload: 
+                Player-Not-Exist: '{prefix}&c玩家 &e%player% &a不存在！'
+                File-Name: '%player_uuid%'
+                Only-Database-Mode: '{prefix}&e只有玩家邮箱启用了数据库模式才可以执行此操作！'
+                Succeeded: '{prefix}&a成功将文件 &c%file% &8（%player%的邮箱数据）&a的数据上传到数据库。'
+                File-Not-Exist: '{prefix}&c文件 &e%file% &c不存在！'
+                Failed: '{prefix}&c上传失败，发生错误: &e%error%'
+                Please-Wait: '{prefix}&a正在查询离线玩家 &e%player% &a的数据...'
         Backup:
             Starting: '{prefix}&a开始备份， 这可能需要较长时间...'
             BackingUp: '{prefix}&e插件正在备份中， 请勿执行此操作。'
@@ -360,6 +419,8 @@ English:
         - ' &3/Ca Admin Backup &c- &aBack up all data of the plug-in to a local directory (including the database).'
         - ' &3/Ca Admin RollBack [DB File] &c- &aRetrieve all currently stored data (excluding configuration files).'
         - ' &3/Ca Admin Info [Player] &c- &aView information about a player.'
+        - ' &3/Ca Admin Market &c- &aChange or view market data.'
+        - ' &3/Ca Admin Player &c- &aChange or view player data.'
         - ' &3/Ca Admin Synchronize &c- &aSync all merchandise and player data stored in the old market to the Plus version.'
         - ' &3/Ca Admin ItemCollection &c- &aCollection of management items.'
         - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
@@ -396,7 +457,7 @@ English:
                 Invalid: '{prefix}&cThere are no pending operations.'
             List:
                 Number-Of-Single-Page: 9
-                Format: '&6UID: &b%uid% &2- &r%item% &2- &e$%money%/n'
+                Format: '&6UID: &b%uid% &2- &r%item% &2- &e$%money% &2- &6%owner%/n'
                 Empty: '{prefix}&aThe global market is empty.'
                 Messages:
                     - '{prefix}&eList &a%page%&7/&a%maxpage%'
@@ -426,6 +487,65 @@ English:
                 Succeeded: '{prefix}&aSuccessfully uploaded the data of file &c%file% &a to the database.'
                 File-Not-Exist: '{prefix}&cThe file &e%file% &c does not exist!'
                 Failed: '{prefix}&cUpload failed! Error: &e%error%'
+        Player:
+            Help:
+                - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+                - ' &3/Ca Admin Player Confirm &c- &aConfirm execution'
+                - ' &3/Ca Admin Player [name] Clear [market/mail] &c- &aClear specified data for this player.'
+                - ' &3/Ca Admin Player [name] List &8[Page] &c- &aList all mail for this player.'
+                - ' &3/Ca Admin Player [name] Delete [UID] &c- &aDelete the specified mail'
+                - ' &3/Ca Admin Player [name] View &c- &aUse GUI to view mailbox.'
+                - ' &3/Ca Admin Player [name] Download &c- &aDownload all player data (database mode only)'
+                - ' &3/Ca Admin Player [name] Upload &c- &aDownload all player data (database mode only)'
+                - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+            Confirm:
+                Confirm: '{prefix}&6Use command &e/ca admin player confirm &6to confirm'
+                Invalid: '{prefix}&cThere are no pending operations.'
+            List:
+                Player-Not-Exist: '{prefix}&cPlayer &e%player% &anot exist!'
+                Number-Of-Single-Page: 9
+                Format: '&6UID: &b%uid% &2- &r%item% /n'
+                Empty: '{prefix}&aThis player has no mail.'
+                Messages:
+                    - '{prefix}&ePlayer &a%player%&e''s mailbox &a%page%&7/&a%maxpage%'
+                    - '&7▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+                    - '%format%'
+                    - '&7▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+                    - '&aUse &c/ca admin player %player% list %nextpage% &ato view the next page{hasnext}'
+                Please-Wait: '{prefix}&aQuerying data of offline player &e%player% &a...'
+            Clear: 
+                Player-Not-Exist: '{prefix}&cPlayer &e%player% &anot exist!'
+                Help: '{prefix}&cUse: &e/ca admin player [name] clear [market/mail]'
+                Market: '{prefix}&cAll products of this player in the global market have been cleared.'
+                ItemMail: '{prefix}&cAll mails for this player have been cleared.'
+                Please-Wait: '{prefix}&aQuerying data of offline player &e%player% &a...'
+            View:
+                Player-Not-Exist: '{prefix}&cPlayer &e%player% &anot exist!'
+                Players-Only: '{prefix}&cOnly players can use this command!'
+                Please-Wait: '{prefix}&aQuerying data of offline player &e%player% &a...'
+                Succeeded: '{prefix}&aChecking the email of player &e%player%'
+            Delete:
+                Player-Not-Exist: '{prefix}&cPlayer &e%player% &anot exist!'
+                Help: '{prefix}&cUse: &e/ca admin player [name] delete [UID]'
+                Not-Exist: '{prefix}&cUID &e%uid% &c''s mail does not exist!'
+                Not-A-Valid-Number: '{prefix}&c%arg% is not a valid number'
+                Succeeded: '{prefix}&aSuccessfully deleted the mail &r%item% &7(UID:%uid%) &a.'
+                Please-Wait: '{prefix}&aQuerying data of offline player &e%player% &a...'
+            Download: 
+                Player-Not-Exist: '{prefix}&cPlayer &e%player% &anot exist!'
+                File-Name: '%player_uuid%'
+                Only-Database-Mode: '{prefix}&eThis operation can only be performed if the database mode is enabled!'
+                Succeeded: '{prefix}&aSuccessfully downloaded the data of player &e%player% &ato the local directory &c%path%'
+                Failed: '{prefix}&cDownload failed, error: &e%error%'
+                Please-Wait: '{prefix}&aQuerying data of offline player &e%player% &a...'
+            Upload: 
+                Player-Not-Exist: '{prefix}&cPlayer &e%player% &anot exist!'
+                File-Name: '%player_uuid%'
+                Only-Database-Mode: '{prefix}&eThis operation can only be performed if the database mode is enabled!'
+                Succeeded: '{prefix}&aSuccessfully uploaded the data of files &c%file% &8(%player%''s mailbox data) &a to the database.'
+                File-Not-Exist: '{prefix}&cFile &e%file% &ccan not exist!'
+                Failed: '{prefix}&cUpload failed, error: &e%error%'
+                Please-Wait: '{prefix}&aQuerying data of offline player &e%player% &a...'
         Backup:
             Starting: '{prefix}&aStart backup, this may take longer...'
             BackingUp: '{prefix}&eThe plugin is being backed up. Do not do this.'

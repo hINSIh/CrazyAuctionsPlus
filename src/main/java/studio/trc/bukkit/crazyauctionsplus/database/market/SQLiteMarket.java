@@ -13,16 +13,16 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import studio.trc.bukkit.crazyauctionsplus.Main;
 import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
 import studio.trc.bukkit.crazyauctionsplus.database.engine.SQLiteEngine;
-import studio.trc.bukkit.crazyauctionsplus.utils.ItemOwner;
-import studio.trc.bukkit.crazyauctionsplus.utils.MarketGoods;
-import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
+import studio.trc.bukkit.crazyauctionsplus.util.ItemOwner;
+import studio.trc.bukkit.crazyauctionsplus.util.MarketGoods;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl;
+import studio.trc.bukkit.crazyauctionsplus.util.enums.ShopType;
 
 public class SQLiteMarket
     extends SQLiteEngine
     implements GlobalMarket
 {
-    private static final List<MarketGoods> marketgoods = new ArrayList();
+    private static volatile List<MarketGoods> marketgoods = new ArrayList();
     
     private static SQLiteMarket instance;
     private static long lastUpdateTime = System.currentTimeMillis();

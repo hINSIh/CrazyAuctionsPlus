@@ -1,7 +1,7 @@
 package studio.trc.bukkit.crazyauctionsplus.api.events;
 
-import studio.trc.bukkit.crazyauctionsplus.utils.enums.ShopType;
-import studio.trc.bukkit.crazyauctionsplus.utils.MarketGoods;
+import studio.trc.bukkit.crazyauctionsplus.util.enums.ShopType;
+import studio.trc.bukkit.crazyauctionsplus.util.MarketGoods;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

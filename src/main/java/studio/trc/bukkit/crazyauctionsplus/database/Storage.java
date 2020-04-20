@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import studio.trc.bukkit.crazyauctionsplus.database.storage.MySQLStorage;
 import studio.trc.bukkit.crazyauctionsplus.database.storage.SQLiteStorage;
 import studio.trc.bukkit.crazyauctionsplus.database.storage.YamlStorage;
-import studio.trc.bukkit.crazyauctionsplus.utils.PluginControl;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl;
 
 public interface Storage
     extends ItemMailBox
