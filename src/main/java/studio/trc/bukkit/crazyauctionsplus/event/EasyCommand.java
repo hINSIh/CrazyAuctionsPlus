@@ -11,7 +11,7 @@ import studio.trc.bukkit.crazyauctionsplus.util.FileManager.*;
 public class EasyCommand
     implements Listener
 {
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void command(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
         ProtectedConfiguration config = Files.CONFIG.getFile();

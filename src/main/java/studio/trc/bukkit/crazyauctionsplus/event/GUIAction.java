@@ -61,7 +61,7 @@ public class GUIAction
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInvClick(InventoryClickEvent e) {
         if (!openingGUI.containsKey(e.getWhoClicked().getUniqueId())) {
             return;
@@ -296,6 +296,7 @@ public class GUIAction
                                                     player.setOp(false);
                                                 } catch (Exception ex) {
                                                     player.setOp(false);
+                                                    PluginControl.printStackTrace(ex);
                                                 }
                                             } else {
                                                 player.performCommand(command[1].replace("%player%", player.getName()).replace("%player_uuid%", player.getUniqueId().toString()));
@@ -344,7 +345,7 @@ public class GUIAction
                                                                     CurrencyManager.addMoney(op, mgs.getPrice());
                                                                 }
                                                             }
-                                                            playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mgs.getItem(), mgs.getFullTime(), false));
+                                                            playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mgs.getItem(), mgs.getFullTime(), System.currentTimeMillis(),  false));
                                                             market.removeGoods(mgs.getUID());
                                                             break;
                                                         }
@@ -359,7 +360,7 @@ public class GUIAction
                                                             AuctionCancelledEvent event = new AuctionCancelledEvent((p != null ? p : Bukkit.getOfflinePlayer(owner)), mgs, CancelledReason.ADMIN_FORCE_CANCEL, ShopType.SELL);
                                                             Bukkit.getPluginManager().callEvent(event);
                                                             Storage playerdata = Storage.getPlayer(Bukkit.getOfflinePlayer(owner));
-                                                            playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mgs.getItem(), mgs.getFullTime(), false));
+                                                            playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mgs.getItem(), mgs.getFullTime(), System.currentTimeMillis(), false));
                                                             market.removeGoods(mgs.getUID());
                                                             break;
                                                         }
@@ -568,7 +569,7 @@ public class GUIAction
                                 PluginControl.takeItem(player, i);
                                 CurrencyManager.addMoney(player, mg.getReward());
                                 Storage playerdata = Storage.getPlayer(Bukkit.getOfflinePlayer(owner));
-                                playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mg.getItem(), mg.getFullTime(), true));
+                                playerdata.addItem(new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(owner), mg.getItem(), PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")), System.currentTimeMillis(), true));
                                 market.removeGoods(uid);
                                 Messages.sendMessage(player, "Sell-Item", placeholders);
                                 if (PluginControl.isOnline(owner) && PluginControl.getPlayer(owner) != null) {
@@ -635,7 +636,7 @@ public class GUIAction
                                             }
                                         }
                                         Storage playerdata = Storage.getPlayer(mg.getItemOwner().getUUID());
-                                        playerdata.addItem(new ItemMail(playerdata.makeUID(), mg.getItemOwner().getUUID(), mg.getItem(), mg.getFullTime(), false));
+                                        playerdata.addItem(new ItemMail(playerdata.makeUID(), mg.getItemOwner().getUUID(), mg.getItem(), PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")), System.currentTimeMillis(), false));
                                         market.removeGoods(uid);
                                         playClick(player);
                                         openPlayersCurrentList(player, 1);
@@ -698,8 +699,7 @@ public class GUIAction
                                         AuctionCancelledEvent event = new AuctionCancelledEvent(player, mg, CancelledReason.PLAYER_FORCE_CANCEL, ShopType.SELL);
                                         Bukkit.getPluginManager().callEvent(event);
                                         Storage playerdata = Storage.getPlayer(mg.getItemOwner().getUUID());
-                                        playerdata.addItem(new ItemMail(playerdata.makeUID(), mg.getItemOwner().getUUID(), mg.getItem(), mg.getFullTime(), false));
-
+                                        playerdata.addItem(new ItemMail(playerdata.makeUID(), mg.getItemOwner().getUUID(), mg.getItem(), PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")), System.currentTimeMillis(), false));
                                         market.removeGoods(uid);
                                         playClick(player);
                                         openPlayersCurrentList(player, 1);
@@ -811,6 +811,7 @@ public class GUIAction
             try {
                 mg = (MarketGoods) repricing.get(player.getUniqueId())[0];
             } catch (ClassCastException ex) {
+                PluginControl.printStackTrace(ex);
                 return;
             }
             if (mg != null && mg.getItem() != null) {

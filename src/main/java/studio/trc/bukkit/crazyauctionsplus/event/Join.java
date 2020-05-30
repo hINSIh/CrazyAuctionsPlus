@@ -20,7 +20,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class Join
     implements Listener
 {
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
         GUIAction.setCategory(player, Category.getDefaultCategory());
@@ -33,7 +33,7 @@ public class Join
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
-                Logger.getLogger(Join.class.getName()).log(Level.SEVERE, null, ex);
+                PluginControl.printStackTrace(ex);
             }
             if (player == null) return;
             Storage data = Storage.getPlayer(player);

@@ -12,7 +12,7 @@ import studio.trc.bukkit.crazyauctionsplus.database.Storage;
 public class Quit 
     implements Listener
 {
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onQuit(PlayerQuitEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
         Storage data = Storage.getPlayer(uuid);

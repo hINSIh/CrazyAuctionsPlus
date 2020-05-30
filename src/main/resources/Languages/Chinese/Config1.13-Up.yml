@@ -54,7 +54,7 @@ Settings:
     Item-NBT-comparison: true
     Feature-Toggle:
         Selling: true
-        Bidding: false
+        Bidding: true
         Buying: true
     #禁止使用本插件功能的世界
     Disabled-Worlds:
@@ -686,6 +686,9 @@ Settings:
                         Default: false
                     Info:
                         Permission: crazyauctionsplus.command.admin.info
+                        Default: false
+                    PrintStackTrace:
+                        Permission: crazyauctionsplus.command.admin.printstacktrace
                         Default: false
                     Market:
                         Permission: crazyauctionsplus.command.admin.market

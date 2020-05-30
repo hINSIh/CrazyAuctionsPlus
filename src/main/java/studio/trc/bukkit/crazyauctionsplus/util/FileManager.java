@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import studio.trc.bukkit.crazyauctionsplus.Main;
 import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
@@ -122,6 +120,7 @@ public class FileManager {
                                     is,
                                     databaseFile.getLong("Items." + key + ".Time-Till-Expire"),
                                     databaseFile.getLong("Items." + key + ".Full-Time"),
+                                    databaseFile.get("Items." + key + ".Added-Time") != null ? databaseFile.getLong("Items." + key + ".Added-Time") : -1,
                                     money,
                                     topBidder
                                 );
@@ -133,6 +132,7 @@ public class FileManager {
                                     is,
                                     databaseFile.getLong("Items." + key + ".Time-Till-Expire"),
                                     databaseFile.getLong("Items." + key + ".Full-Time"),
+                                    databaseFile.get("Items." + key + ".Added-Time") != null ? databaseFile.getLong("Items." + key + ".Added-Time") : -1,
                                     money
                                 );
                             }
@@ -147,14 +147,14 @@ public class FileManager {
                                     OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(databaseFile.getString("OutOfTime/Cancelled." + key + ".Owner").split(":")[1]));
                                     if (op != null) {
                                         Storage playerdata = Storage.getPlayer(op);
-                                        ItemMail im = new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(playerdata.getUUID()), databaseFile.getItemStack("OutOfTime/Cancelled." + key + ".Item"), databaseFile.getLong("OutOfTime/Cancelled." + key + ".Full-Time"), databaseFile.getBoolean("OutOfTime/Cancelled." + key + ".Never-Expire"));
+                                        ItemMail im = new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(playerdata.getUUID()), databaseFile.getItemStack("OutOfTime/Cancelled." + key + ".Item"), databaseFile.getLong("OutOfTime/Cancelled." + key + ".Full-Time"), -1, databaseFile.getBoolean("OutOfTime/Cancelled." + key + ".Never-Expire"));
                                         playerdata.addItem(im);
                                     }
                                 } else if (databaseFile.get("OutOfTime/Cancelled." + key + ".Seller") != null) {
                                     OfflinePlayer op = Bukkit.getOfflinePlayer(databaseFile.getString("OutOfTime/Cancelled." + key + ".Seller"));
                                     if (op != null) {
                                         Storage playerdata = Storage.getPlayer(op);
-                                        ItemMail im = new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(playerdata.getUUID()), databaseFile.getItemStack("OutOfTime/Cancelled." + key + ".Item"), databaseFile.getLong("OutOfTime/Cancelled." + key + ".Full-Time"), databaseFile.getBoolean("OutOfTime/Cancelled." + key + ".Never-Expire"));
+                                        ItemMail im = new ItemMail(playerdata.makeUID(), Bukkit.getOfflinePlayer(playerdata.getUUID()), databaseFile.getItemStack("OutOfTime/Cancelled." + key + ".Item"), databaseFile.getLong("OutOfTime/Cancelled." + key + ".Full-Time"), -1, databaseFile.getBoolean("OutOfTime/Cancelled." + key + ".Never-Expire"));
                                         playerdata.addItem(im);
                                     }
                                 }
@@ -178,6 +178,7 @@ public class FileManager {
                 }
             }
             syncing = false;
+            PluginControl.printStackTrace(ex);
         }
     };
     
@@ -231,6 +232,7 @@ public class FileManager {
                                         try {
                                             yaml.load(f);
                                         } catch (IOException | InvalidConfigurationException ex) {
+                                            PluginControl.printStackTrace(ex);
                                             continue;
                                         }
                                         PreparedStatement pstatement = DBFile.prepareStatement("INSERT INTO ItemMail (Name, UUID, YamlData) VALUES(?, ?, ?)");
@@ -253,6 +255,7 @@ public class FileManager {
                                         try {
                                             yaml.load(f);
                                         } catch (IOException | InvalidConfigurationException ex) {
+                                            PluginControl.printStackTrace(ex);
                                             continue;
                                         }
                                         PreparedStatement pstatement = DBFile.prepareStatement("INSERT INTO ItemMail (Name, UUID, YamlData) VALUES(?, ?, ?)");
@@ -280,6 +283,7 @@ public class FileManager {
                                 try {
                                     yaml.load(f);
                                 } catch (IOException | InvalidConfigurationException ex) {
+                                    PluginControl.printStackTrace(ex);
                                     continue;
                                 }
                                 PreparedStatement pstatement = DBFile.prepareStatement("INSERT INTO ItemMail (Name, UUID, YamlData) VALUES(?, ?, ?)");
@@ -309,6 +313,7 @@ public class FileManager {
                 }
             }
             backingup = false;
+            PluginControl.printStackTrace(ex);
         }
     };
     
@@ -378,8 +383,9 @@ public class FileManager {
                 File serverFile = new File(main.getDataFolder(), file.getFileLocation());
                 InputStream jarFile = getClass().getResourceAsStream("/Languages/" + path + "/" + fileLocation);
                 saveFile(jarFile, serverFile); 
-            } catch (IOException e) {
+            } catch (IOException ex) {
                 if (Main.language.get("ConfigurationFileNotExist") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileNotExist").replace("{file}", newFile.getName()).replace("{prefix}", prefix).replace("&", "§"));
+                PluginControl.printStackTrace(ex);
                 return;
             }
         }
@@ -415,12 +421,13 @@ public class FileManager {
             }
             newFile.renameTo(oldFile);
             saveResource(file);
+            PluginControl.printStackTrace(ex);
             try (Reader newConfig = new InputStreamReader(new FileInputStream(newFile))) {
                 FileConfiguration config = new YamlConfiguration();
                 config.load(newConfig);
                 configurations.put(file, config);
             } catch (IOException | InvalidConfigurationException ex1) {
-                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex1);
+                PluginControl.printStackTrace(ex1);
             }
             if (Main.language.get("ConfigurationFileRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileRepair").replace("{prefix}", prefix).replace("&", "§"));
         }
@@ -447,12 +454,13 @@ public class FileManager {
             }
             newFile.renameTo(oldFile);
             saveResource(file);
+            PluginControl.printStackTrace(ex);
             try (Reader newConfig = new InputStreamReader(new FileInputStream(newFile))) {
                 FileConfiguration config = new YamlConfiguration();
                 config.load(newConfig);
                 configurations.put(file, config);
             } catch (IOException | InvalidConfigurationException ex1) {
-                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex1);
+                PluginControl.printStackTrace(ex1);
             }
             if (Main.language.get("ConfigurationFileRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileRepair").replace("{prefix}", prefix).replace("&", "§"));
         }
@@ -477,12 +485,13 @@ public class FileManager {
             }
             newFile.renameTo(oldFile);
             saveResource(file);
+            PluginControl.printStackTrace(ex);
             try (Reader newConfig = new InputStreamReader(new FileInputStream(newFile))) {
                 FileConfiguration config = new YamlConfiguration();
                 config.load(newConfig);
                 configurations.put(file, config);
             } catch (IOException | InvalidConfigurationException ex1) {
-                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex1);
+                PluginControl.printStackTrace(ex1);
             }
             if (Main.language.get("ConfigurationFileRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileRepair").replace("{prefix}", prefix).replace("&", "§"));
         }
@@ -506,12 +515,13 @@ public class FileManager {
             }
             newFile.renameTo(oldFile);
             saveResource(file);
+            PluginControl.printStackTrace(ex);
             try (Reader newConfig = new InputStreamReader(new FileInputStream(newFile))) {
                 FileConfiguration config = new YamlConfiguration();
                 config.load(newConfig);
                 configurations.put(file, config);
             } catch (IOException | InvalidConfigurationException ex1) {
-                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex1);
+                PluginControl.printStackTrace(ex1);
             }
             if (Main.language.get("ConfigurationFileRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileRepair").replace("{prefix}", prefix).replace("&", "§"));
         }
@@ -535,12 +545,13 @@ public class FileManager {
             }
             newFile.renameTo(oldFile);
             saveResource(file);
+            PluginControl.printStackTrace(ex);
             try (Reader newConfig = new InputStreamReader(new FileInputStream(newFile))) {
                 FileConfiguration config = new YamlConfiguration();
                 config.load(newConfig);
                 configurations.put(file, config);
             } catch (IOException | InvalidConfigurationException ex1) {
-                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex1);
+                PluginControl.printStackTrace(ex1);
             }
             if (Main.language.get("ConfigurationFileRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileRepair").replace("{prefix}", prefix).replace("&", "§"));
         }
@@ -606,12 +617,13 @@ public class FileManager {
                 }
                 newFile.renameTo(oldFile);
                 saveResource(file);
+                PluginControl.printStackTrace(ex);
                 try (Reader newConfig = new InputStreamReader(new FileInputStream(newFile))) {
                     FileConfiguration config = new YamlConfiguration();
                     config.load(newConfig);
                     configurations.put(file, config);
                 } catch (IOException | InvalidConfigurationException ex1) {
-                    Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex1);
+                    PluginControl.printStackTrace(ex1);
                 }
                 if (Main.language.get("ConfigurationFileRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("ConfigurationFileRepair").replace("{prefix}", prefix).replace("&", "§"));
             }
@@ -651,7 +663,7 @@ public class FileManager {
                                 if (log) System.out.println(prefix + "Created new default file: " + homeFolder + "/" + fileName + ".");
                             } catch (Exception e) {
                                 if (log) System.out.println(prefix + "Failed to create new default file: " + homeFolder + "/" + fileName + "!");
-                                e.printStackTrace();
+                                PluginControl.printStackTrace(e);
                             }
                         }
                     }
@@ -755,6 +767,7 @@ public class FileManager {
         } catch (IOException e) {
             System.out.println(prefix + "Could not save " + file.getFileName() + "!");
             e.printStackTrace();
+            PluginControl.printStackTrace(e);
         }
     }
     
@@ -770,7 +783,7 @@ public class FileManager {
                 if (log) System.out.println(prefix + "Successfuly saved the " + file.getFileName() + ".");
             } catch (Exception e) {
                 System.out.println(prefix + "Could not save " + file.getFileName() + "!");
-                e.printStackTrace();
+                PluginControl.printStackTrace(e);
             }
         } else {
             if (log) System.out.println(prefix + "The file " + name + ".yml could not be found!");
@@ -807,7 +820,7 @@ public class FileManager {
                 if (log) System.out.println(prefix + "Successfuly reload the " + file.getFileName() + ".");
             } catch (Exception e) {
                 System.out.println(prefix + "Could not reload the " + file.getFileName() + "!");
-                e.printStackTrace();
+                PluginControl.printStackTrace(e);
             }
         } else {
             if (log) System.out.println(prefix + "The file " + name + ".yml could not be found!");
@@ -1011,7 +1024,7 @@ public class FileManager {
                 configFile.load(Config);
                 defaultConfig.put(file, configFile);
             } catch (IOException | InvalidConfigurationException ex) {
-                Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex);
+                PluginControl.printStackTrace(ex);
             }
         }
     }
@@ -1109,7 +1122,7 @@ public class FileManager {
                     return true;
                 } catch (Exception e) {
                     System.out.println(prefix + "Could not save " + fileName + "!");
-                    e.printStackTrace();
+                    PluginControl.printStackTrace(e);
                     return false;
                 }
             } else {
@@ -1130,7 +1143,7 @@ public class FileManager {
                     return true;
                 } catch (Exception e) {
                     System.out.println(prefix + "Could not reload the " + fileName + "!");
-                    e.printStackTrace();
+                    PluginControl.printStackTrace(e);
                 }
             } else {
                 if (log) System.out.println(prefix + "There was a null custom file that was not found!");

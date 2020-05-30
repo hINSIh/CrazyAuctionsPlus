@@ -21,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 
 import studio.trc.bukkit.crazyauctionsplus.util.ItemMail;
 import studio.trc.bukkit.crazyauctionsplus.database.Storage;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl;
 
 public class YamlStorage
     implements Storage
@@ -43,12 +44,15 @@ public class YamlStorage
         if (!dataFile.exists()) {
             try {
                 dataFile.createNewFile();
-            } catch (IOException ex) {}
+            } catch (IOException ex) {
+                PluginControl.printStackTrace(ex);
+            }
         }
         try (InputStreamReader Config = new InputStreamReader(new FileInputStream(dataFile), "UTF-8")) {
             config.load(Config);
         } catch (IOException | InvalidConfigurationException ex) {
             dataFileRepair();
+            PluginControl.printStackTrace(ex);
         }
         
         loadData();
@@ -66,12 +70,15 @@ public class YamlStorage
         if (!dataFile.exists()) {
             try {
                 dataFile.createNewFile();
-            } catch (IOException ex) {}
+            } catch (IOException ex) {
+                PluginControl.printStackTrace(ex);
+            }
         }
         try (InputStreamReader Config = new InputStreamReader(new FileInputStream(dataFile), "UTF-8")) {
             config.load(Config);
         } catch (IOException | InvalidConfigurationException ex) {
             dataFileRepair();
+            PluginControl.printStackTrace(ex);
         }
         
         loadData();
@@ -92,10 +99,12 @@ public class YamlStorage
                             config.get("Items." + path + ".UID") != null ? config.getLong("Items." + path + ".UID") : Long.valueOf(path),
                             Bukkit.getPlayer(uuid),
                             config.get("Items." + path + ".Item") != null ? config.getItemStack("Items." + path + ".Item") : new ItemStack(Material.AIR),
-                            config.get("Items." + path + ".Full-Time") != null ? config.getLong("Items." + path + ".Full-Time") : 0,
-                            config.get("Items." + path + ".Never-Expire") != null ? config.getBoolean("Items." + path + ".Never-Expire") : false
+                            config.getLong("Items." + path + ".Full-Time"),
+                            config.get("Items." + path + ".Added-Time") != null ? config.getLong("Items." + path + ".Added-Time") : -1,
+                            config.getBoolean("Items." + path + ".Never-Expire")
                         );
                     } catch (Exception ex) {
+                        PluginControl.printStackTrace(ex);
                         continue;
                     }
                     mailBox.add(im);
@@ -113,10 +122,14 @@ public class YamlStorage
         dataFile.renameTo(new File("plugins/CrazyAuctionsPlus/Broken-Players/" + uuid.toString() + ".yml"));
         try {
             dataFile.createNewFile();
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+            PluginControl.printStackTrace(ex);
+        }
         try (InputStreamReader Config = new InputStreamReader(new FileInputStream(dataFile), "UTF-8")) {
             config.load(Config);
-        } catch (IOException | InvalidConfigurationException ex) {}
+        } catch (IOException | InvalidConfigurationException ex) {
+            PluginControl.printStackTrace(ex);
+        }
     }
     
     @Override
@@ -218,7 +231,9 @@ public class YamlStorage
         }
         try {
             config.save("plugins/CrazyAuctionsPlus/Players/" + uuid + ".yml");
-        } catch (IOException ex) {}
+        } catch (IOException ex) {
+            PluginControl.printStackTrace(ex);
+        }
     }
     
     public static YamlStorage getPlayerData(Player player) {

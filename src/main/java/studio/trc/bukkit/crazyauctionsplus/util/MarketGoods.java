@@ -18,6 +18,7 @@ public class MarketGoods
     private double reward = 0;
     
     private final ShopType shoptype;
+    private final long addedTime;
     private final long fullTime;
     private final ItemOwner owner;
     private final ItemStack item;
@@ -25,24 +26,26 @@ public class MarketGoods
     
     @Override
     public String toString() {
-        return "[MarketGoods] -> [UID=" + uid + ", Owner=" + owner + ", FullTime=" + fullTime + ", TimeTillExpire=" + timeTillExpire + ", ShopType=" + shoptype.getName() + ", Price=" + price + ", Reward=" + reward + ", TopBidder=" + topBidder + ", Item=" + item + "]";
+        return "[MarketGoods] -> [UID=" + uid + ", Owner=" + owner + ", FullTime=" + fullTime + ", TimeTillExpire=" + timeTillExpire + ", AddedTime=" + addedTime + ", ShopType=" + shoptype.getName() + ", Price=" + price + ", Reward=" + reward + ", TopBidder=" + topBidder + ", Item=" + item + "]";
     }
     
-    public MarketGoods(long uid, ShopType shoptype, ItemOwner owner, ItemStack item, long timeTillExpire, long fullTime) {
+    public MarketGoods(long uid, ShopType shoptype, ItemOwner owner, ItemStack item, long timeTillExpire, long fullTime, long addedTime) {
         this.shoptype = shoptype;
         this.owner = owner;
         this.item = item;
         this.timeTillExpire = timeTillExpire;
         this.fullTime = fullTime;
+        this.addedTime = addedTime;
         this.uid = uid;
     }
 
-    public MarketGoods(long uid, ShopType shoptype, ItemOwner owner, ItemStack item, long timeTillExpire, long fullTime, double money) {
+    public MarketGoods(long uid, ShopType shoptype, ItemOwner owner, ItemStack item, long timeTillExpire, long fullTime, long addedTime, double money) {
         this.shoptype = shoptype;
         this.owner = owner;
         this.item = item;
         this.timeTillExpire = timeTillExpire;
         this.fullTime = fullTime;
+        this.addedTime = addedTime;
         this.uid = uid;
         if (shoptype.equals(ShopType.SELL) || shoptype.equals(ShopType.BID)) {
             price = money;
@@ -51,23 +54,25 @@ public class MarketGoods
         }
     }
 
-    public MarketGoods(long uid, ShopType shoptype, ItemOwner owner, ItemStack item, long timeTillExpire, long fullTime, double price, String topBidder) {
+    public MarketGoods(long uid, ShopType shoptype, ItemOwner owner, ItemStack item, long timeTillExpire, long fullTime, long addedTime, double price, String topBidder) {
         this.shoptype = shoptype;
         this.owner = owner;
         this.item = item;
         this.timeTillExpire = timeTillExpire;
         this.fullTime = fullTime;
+        this.addedTime = addedTime;
         this.price = price;
         this.topBidder = topBidder;
         this.uid = uid;
     }
 
-    public MarketGoods(long uid, ShopType shoptype, ItemOwner owner, ItemStack item, long timeTillExpire, long fullTime, double price, OfflinePlayer topBidder) {
+    public MarketGoods(long uid, ShopType shoptype, ItemOwner owner, ItemStack item, long timeTillExpire, long fullTime, long addedTime, double price, OfflinePlayer topBidder) {
         this.shoptype = shoptype;
         this.owner = owner;
         this.item = item;
         this.timeTillExpire = timeTillExpire;
         this.fullTime = fullTime;
+        this.addedTime = addedTime;
         this.price = price;
         this.topBidder = topBidder.getName() + ":" + topBidder.getUniqueId();
         this.uid = uid;
@@ -126,7 +131,11 @@ public class MarketGoods
      * @return 
      */
     public long getAddedTime() {
-        return fullTime - (PluginControl.convertToMill(Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")) - System.currentTimeMillis());
+        if (addedTime == -1) {
+            return fullTime - (PluginControl.convertToMill(Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")) - System.currentTimeMillis());
+        } else {
+            return addedTime;
+        }
     }
     
     /**
@@ -135,6 +144,15 @@ public class MarketGoods
      */
     public long getUID() {
         return uid;
+    }
+    
+    /**
+     * Whether the product has expired.
+     * This method is usually called by automatic update detection.
+     * @return 
+     */
+    public boolean expired() {
+        return System.currentTimeMillis() >= timeTillExpire;
     }
     
     /**

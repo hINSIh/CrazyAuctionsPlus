@@ -16,6 +16,7 @@ import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
 import studio.trc.bukkit.crazyauctionsplus.util.FileManager.*;
 import studio.trc.bukkit.crazyauctionsplus.util.ItemOwner;
 import studio.trc.bukkit.crazyauctionsplus.util.MarketGoods;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl;
 import studio.trc.bukkit.crazyauctionsplus.util.enums.ShopType;
 
 public class YamlMarket
@@ -165,6 +166,7 @@ public class YamlMarket
                             data.getItemStack("Items." + path + ".Item"),
                             data.getLong("Items." + path + ".Time-Till-Expire"),
                             data.getLong("Items." + path + ".Full-Time"),
+                            data.get("Items." + path + ".Added-Time") != null ? data.getLong("Items." + path + ".Added-Time") : -1,
                             data.getDouble("Items." + path + ".Price")
                         );
                         break;
@@ -177,6 +179,7 @@ public class YamlMarket
                             data.getItemStack("Items." + path + ".Item"),
                             data.getLong("Items." + path + ".Time-Till-Expire"),
                             data.getLong("Items." + path + ".Full-Time"),
+                            data.get("Items." + path + ".Added-Time") != null ? data.getLong("Items." + path + ".Added-Time") : -1,
                             data.getDouble("Items." + path + ".Reward")
                         );
                         break;
@@ -189,6 +192,7 @@ public class YamlMarket
                             data.getItemStack("Items." + path + ".Item"),
                             data.getLong("Items." + path + ".Time-Till-Expire"),
                             data.getLong("Items." + path + ".Full-Time"),
+                            data.get("Items." + path + ".Added-Time") != null ? data.getLong("Items." + path + ".Added-Time") : -1,
                             data.getDouble("Items." + path + ".Price"),
                             data.getString("Items." + path + ".TopBidder")
                         );
@@ -208,7 +212,9 @@ public class YamlMarket
         YamlConfiguration config = new YamlConfiguration();
         try (Reader reader = new InputStreamReader(new FileInputStream(new File("plugins/CrazyAuctionsPlus/Database.yml")), "UTF-8")) {
             config.load(reader);
-        } catch (IOException | InvalidConfigurationException ex) {}
+        } catch (IOException | InvalidConfigurationException ex) {
+            PluginControl.printStackTrace(ex);
+        }
         return config;
     }
 }

@@ -161,7 +161,7 @@ public enum Messages {
         } else {
             for (String message : messages) {
                 for (String ph : placeholders.keySet()) {
-                    message = PluginControl.color(message.replaceAll(ph, placeholders.get(ph))).replaceAll(ph, placeholders.get(ph).toLowerCase()).replace("{prefix}", PluginControl.getPrefix()).replace("/n", "\n");
+                    message = PluginControl.color(message.replace(ph, placeholders.get(ph)).replace("{prefix}", PluginControl.getPrefix())).replace("/n", "\n");
                 }
                 sender.sendMessage(message);
             }
@@ -211,7 +211,7 @@ public enum Messages {
                     continue;
                 }
                 for (String ph : placeholders.keySet()) {
-                    message = PluginControl.color(message.replaceAll(ph, placeholders.get(ph))).replaceAll(ph, placeholders.get(ph).toLowerCase()).replace("{prefix}", PluginControl.getPrefix()).replace("/n", "\n");
+                    message = PluginControl.color(message.replace(ph, placeholders.get(ph)).replace("{prefix}", PluginControl.getPrefix())).replace("/n", "\n");
                 }
                 sender.sendMessage(message);
             }

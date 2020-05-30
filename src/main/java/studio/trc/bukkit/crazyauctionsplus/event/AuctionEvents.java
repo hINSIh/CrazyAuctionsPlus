@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import studio.trc.bukkit.crazyauctionsplus.api.events.AuctionListEvent;
@@ -21,7 +22,7 @@ public class AuctionEvents
     extends AuctionProcess
     implements Listener
 {
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void starting(AuctionListEvent e) {
         if (!e.getShopType().equals(ShopType.BID)) return;
         Player p = e.getPlayer();
@@ -39,7 +40,7 @@ public class AuctionEvents
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void bidding(AuctionNewBidEvent e) {
         Player p = e.getPlayer();
         ProtectedConfiguration config = Files.CONFIG.getFile();
@@ -57,7 +58,7 @@ public class AuctionEvents
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void ending(AuctionWinBidEvent e) {
         Player p = e.getPlayer();
         ProtectedConfiguration config = Files.CONFIG.getFile();
@@ -75,7 +76,7 @@ public class AuctionEvents
         }
     }
     
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void newBid(AuctionNewBidEvent e) {
         Player p = e.getPlayer();
         ProtectedConfiguration config = Files.CONFIG.getFile();
@@ -100,7 +101,9 @@ public class AuctionEvents
                         }
                         break;
                     }
-                } catch (NumberFormatException ex) {}
+                } catch (NumberFormatException ex) {
+                    PluginControl.printStackTrace(ex);
+                }
             }
         }
     }

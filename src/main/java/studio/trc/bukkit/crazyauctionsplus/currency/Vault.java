@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import studio.trc.bukkit.crazyauctionsplus.util.PluginControl;
 
 public class Vault {
     
@@ -33,7 +34,9 @@ public class Vault {
         if (player != null) {
             try {
                 return econ.getBalance(player);
-            } catch (NullPointerException ignore) {}
+            } catch (NullPointerException ex) {
+                PluginControl.printStackTrace(ex);
+            }
         }
         return 0L;
     }
@@ -42,7 +45,9 @@ public class Vault {
         if (player != null) {
             try {
                 return econ.getBalance(player);
-            } catch (NullPointerException ignore) {}
+            } catch (NullPointerException ex) {
+                PluginControl.printStackTrace(ex);
+            }
         }
         return 0L;
     }

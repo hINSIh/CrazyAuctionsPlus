@@ -19,7 +19,7 @@ English:
     Cancelled-Item-On-Sale: '{prefix}&cYou have canceled an &r%item% &con the auction list, return your items with /Ca Mail.'
     Cancelled-Item-On-Buy: '{prefix}&cYou have canceled an &r%item% &con the auction list, return your &a$%reward% &c.'
     Cancelled-Item-On-Bid: '{prefix}&cYou have canceled an &r%item% &con the auction list, return your items with /Ca Mail.'
-    Item-Has-Expired: '{prefix}&eAn item you have in the Crazy Auctions Plus has expired.'
+    Item-Has-Expired: '{prefix}&6Your product &r%item% &6 on the market has expired.'
     Admin-Force-Cancelled: '{prefix}&cYou have force canceled a sale.'
     Admin-Force-Cancelled-To-Player: '{prefix}&cOne of your items was force canceled by an Admin.'
     Item-Doesnt-Exist: '{prefix}&cThat item isn''t in the crazy auctions any more.'
@@ -53,7 +53,7 @@ English:
     Someone-Won-Players-Bid: '{prefix}&7%player% has won your item with a bid of &a$%price%.'
     Added-Item-For-Sale: '{prefix}&aYou sold an item to the market for &e$%price%&a, Tax &e$%tax% &a.'
     Added-Item-For-Acquisition: '{prefix}&aYou initiate the acquisition of item &r%item% &aat a consideration of &e$%reward%, Tax &e$%tax% &a.'
-    Added-Item-For-Sale: '{prefix}&aYou sold an item to the market for &e$%price%&a, Tax &e$%tax% &a.'
+    Added-Item-For-Bid: '{prefix}&aYou sold an item to the market for &e$%price%&a, Tax &e$%tax% &a.'
     Bid-Msg: '{prefix}&7You have just bid &a$%Bid% &7on that item.'
     Selling-Disabled: '{prefix}&cThe selling option is disabled.'
     Buying-Disabled: '{prefix}&cThe buying option is disabled.'
@@ -90,6 +90,7 @@ English:
         - ' &3/Ca Admin Backup &c- &aBack up all data of the plug-in to a local directory (including the database).'
         - ' &3/Ca Admin RollBack [DB File] &c- &aRetrieve all currently stored data (excluding configuration files).'
         - ' &3/Ca Admin Info [Player] &c- &aView information about a player.'
+        - ' &3/Ca Admin PrintStackTrace &c- &aSwitch trace stack information display.'
         - ' &3/Ca Admin Market &c- &aChange or view market data.'
         - ' &3/Ca Admin Player &c- &aChange or view player data.'
         - ' &3/Ca Admin Synchronize &c- &aSync all merchandise and player data stored in the old market to the Plus version.'
@@ -112,6 +113,13 @@ English:
             Syncing: '{prefix}&eThe plugin is synchronizing. Do not do this.'
             Failed: '{prefix}&cSync failed with error: &e%error% .'
             Successfully: '{prefix}&aThe data format of all old stored files has been synchronized to the current version.'
+        PrintStackTrace:
+            Turn-On: '{prefix}&aTrace stack printing is enabled.'
+            Turn-Off: '{prefix}&cTracing stack printing has been turned off.'
+            Messages:
+                - '{prefix}&ePlugin operation fails, and the trace stack information is as follows:'
+                - '&4%stacktrace%'
+                - '&bIf this is not something you can solve by yourself, please contact the author and report, thank you!'
         Market:
             Help:
                 - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
@@ -353,7 +361,7 @@ Chinese:
     Cancelled-Item-On-Sale: '{prefix}&c你已取消 &r%item% &c的&b&l出售&c， 使用命令 &a/Ca Mail &c取回它。'
     Cancelled-Item-On-Buy: '{prefix}&c你已取消 &r%item% &c的&d&l收购&c， 返回了你的 &a%reward% ￥&c.'
     Cancelled-Item-On-Bid: '{prefix}&c你已取消 &r%item% &c的&5&l拍卖&c， 使用命令 &a/Ca Mail &c取回它。'
-    Item-Has-Expired: '{prefix}&6你在市场上的商品已到期。'
+    Item-Has-Expired: '{prefix}&6你在市场上的商品 &r%item% &6已到期。'
     Admin-Force-Cancelled: '{prefix}&c你强制下架了这个商品！'
     Admin-Force-Cancelled-To-Player: '{prefix}&c你在市场上的一项商品已被管理员强制下架。'
     Item-Doesnt-Exist: '{prefix}&c系统无法在市场上找到该物品！'
@@ -424,6 +432,7 @@ Chinese:
         - ' &3/Ca Admin Backup &c- &a备份插件所有数据到本地目录（包括数据库）'
         - ' &3/Ca Admin RollBack [备份文件] &c- &a将当前所有的储存数据进行回档（不包含配置文件）'
         - ' &3/Ca Admin Info [玩家] &c- &a查看一名玩家的相关数据'
+        - ' &3/Ca Admin PrintStackTrace &c- &a开关跟踪堆栈信息显示'
         - ' &3/Ca Admin Market &c- &a操控市场相关数据信息'
         - ' &3/Ca Admin Player &c- &a操控玩家相关数据信息'
         - ' &3/Ca Admin Synchronize &c- &a同步所有旧市场存贮的商品及玩家数据到Plus版本'
@@ -446,6 +455,13 @@ Chinese:
             Syncing: '{prefix}&e插件正在同步中， 请勿执行此操作。'
             Failed: '{prefix}&c同步失败， 遇到错误: &e%error% 。'
             Successfully: '{prefix}&a所有旧储存文件的数据格式已同步到当前版本。'
+        PrintStackTrace:
+            Turn-On: '{prefix}&a已启用跟踪堆栈打印。'
+            Turn-Off: '{prefix}&c已关闭跟踪堆栈打印。'
+            Messages:
+                - '{prefix}&e插件运行发生故障， 跟踪堆栈信息如下:'
+                - '&4%stacktrace%'
+                - '&b如果这不是你所能自行解决的， 请联系作者并进行汇报， 谢谢！'
         Market:
             Help:
                 - '&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'

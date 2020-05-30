@@ -40,7 +40,7 @@ Settings:
         Update-Delay: 5
     Feature-Toggle: #Toggle if a feature is on or off.
         Selling: true #Able to use the selling part of the auction house.
-        Bidding: false #Able to use the bidding part of the auction house.
+        Bidding: true #Able to use the bidding part of the auction house.
         Buying: true #Able to use the buying part of the auction house.
     Disabled-Worlds: #Worlds where the use of this plug-in function is prohibited.
     - exampleworld 
@@ -623,6 +623,9 @@ Settings:
                         Default: false
                     Info:
                         Permission: crazyauctionsplus.command.admin.info
+                        Default: false
+                    PrintStackTrace:
+                        Permission: crazyauctionsplus.command.admin.printstacktrace
                         Default: false
                     Market:
                         Permission: crazyauctionsplus.command.admin.market

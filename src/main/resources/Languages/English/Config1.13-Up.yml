@@ -29,12 +29,18 @@ Settings:
     Category-Page-Opens-First: false #If set to true the categories page will open when they do /CA.
     Item-NBT-comparison: true #Does the item match the buyer's and seller's NBT when purchasing the item.
     Automatic-Backup: false #Whether to enable automatic backup, automatically back up the stored data every time the server is shut down.
+    Download: #Database download file related settings
+        Market: 'plugins/CrazyAuctionsPlus/Download/GlobalMarket-%date%.yml'
+        PlayerData: 'plugins/CrazyAuctionsPlus/Download/Player/%player%-%uuid%.yml'
+    Upload: #Database upload file related settings
+        Market: 'plugins/CrazyAuctionsPlus/Database.yml'
+        PlayerData: 'plugins/CrazyAuctionsPlus/Player/%uuid%.yml'
     Global-Market-Automatic-Update: #Automatic update of market data
         Enabled: true
         Update-Delay: 5
     Feature-Toggle: #Toggle if a feature is on or off.
         Selling: true #Able to use the selling part of the auction house.
-        Bidding: false #Able to use the bidding part of the auction house.
+        Bidding: true #Able to use the bidding part of the auction house.
         Buying: true #Able to use the buying part of the auction house.
     Disabled-Worlds: #Worlds where the use of this plug-in function is prohibited.
     - exampleworld 
@@ -617,6 +623,9 @@ Settings:
                         Default: false
                     Info:
                         Permission: crazyauctionsplus.command.admin.info
+                        Default: false
+                    PrintStackTrace:
+                        Permission: crazyauctionsplus.command.admin.printstacktrace
                         Default: false
                     Market:
                         Permission: crazyauctionsplus.command.admin.market

@@ -16,31 +16,35 @@ public class ItemMail
 {
     private final UUID uuid;
     private final ItemStack is;
+    private final long addedTime;
     private final long fullTime;
     private final boolean neverExpire;
     private final long uid;
     
-    public ItemMail(long uid, UUID uuid, ItemStack is, long fullTime, boolean neverExpire) {
+    public ItemMail(long uid, UUID uuid, ItemStack is, long fullTime, long addedTime, boolean neverExpire) {
         this.uid = uid;
         this.uuid = uuid;
         this.is = is;
         this.fullTime = fullTime;
+        this.addedTime = addedTime;
         this.neverExpire = neverExpire;
     }
     
-    public ItemMail(long uid, Player owner, ItemStack is, long fullTime, boolean neverExpire) {
+    public ItemMail(long uid, Player owner, ItemStack is, long fullTime, long addedTime, boolean neverExpire) {
         this.uid = uid;
         this.uuid = owner.getUniqueId();
         this.is = is;
         this.fullTime = fullTime;
+        this.addedTime = addedTime;
         this.neverExpire = neverExpire;
     }
     
-    public ItemMail(long uid, OfflinePlayer owner, ItemStack is, long fullTime, boolean neverExpire) {
+    public ItemMail(long uid, OfflinePlayer owner, ItemStack is, long fullTime, long addedTime, boolean neverExpire) {
         this.uid = uid;
         this.uuid = owner.getUniqueId();
         this.is = is;
         this.fullTime = fullTime;
+        this.addedTime = addedTime;
         this.neverExpire = neverExpire;
     }
     
@@ -61,11 +65,24 @@ public class ItemMail
     }
     
     /**
+     * Whether the mail has expired.
+     * This method is usually called by automatic update detection.
+     * @return 
+     */
+    public boolean expired() {
+        return System.currentTimeMillis() >= fullTime;
+    }
+    
+    /**
      * Get creation time.
      * @return 
      */
     public long getAddedTime() {
-        return fullTime - (PluginControl.convertToMill(Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")) - System.currentTimeMillis());
+        if (addedTime == -1) {
+            return fullTime - (PluginControl.convertToMill(Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")) - System.currentTimeMillis());
+        } else {
+            return addedTime;
+        }
     }
     
     /**

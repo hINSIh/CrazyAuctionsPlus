@@ -158,9 +158,10 @@ public class Main
                     }
                 } catch (Exception ex) {
                     if (language.get("CacheUpdateError") != null) getServer().getConsoleSender().sendMessage(language.getProperty("CacheUpdateError")
-                            .replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "Unknown reason")
+                            .replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null")
                             .replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
                     fault = true;
+                    PluginControl.printStackTrace(ex);
                 }
             }
         });

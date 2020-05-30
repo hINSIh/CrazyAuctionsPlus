@@ -41,6 +41,8 @@ Settings:
         Update-Delay: 5
     #重定价超时时间（秒）
     Repricing-Timeout: 30
+    #是否在玩家发起新拍卖时向服务器里所有玩家发送信息提示
+    Auction-Starts-Broadcast: true
     #是否在玩家登入的时候提示是否有新的物品邮件
     Join-Message: true
     #是否允许损坏的物品上架
@@ -52,7 +54,7 @@ Settings:
     Item-NBT-comparison: true
     Feature-Toggle:
         Selling: true
-        Bidding: false
+        Bidding: true
         Buying: true
     #禁止使用本插件功能的世界
     Disabled-Worlds:
@@ -685,6 +687,9 @@ Settings:
                         Default: false
                     Info:
                         Permission: crazyauctionsplus.command.admin.info
+                        Default: false
+                    PrintStackTrace:
+                        Permission: crazyauctionsplus.command.admin.printstacktrace
                         Default: false
                     Market:
                         Permission: crazyauctionsplus.command.admin.market

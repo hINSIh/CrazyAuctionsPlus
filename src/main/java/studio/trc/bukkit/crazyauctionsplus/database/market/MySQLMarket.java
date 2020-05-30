@@ -185,7 +185,10 @@ public class MySQLMarket
             if (Main.language.get("MySQL-DataSavingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataSavingError").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
             try {
                 if (getConnection().isClosed()) repairConnection();
-            } catch (SQLException ex1) {}
+            } catch (SQLException ex1) {
+                PluginControl.printStackTrace(ex1);
+            }
+            PluginControl.printStackTrace(ex);
         }
     }
     
@@ -216,6 +219,7 @@ public class MySQLMarket
                                 yamlMarket.getItemStack("Items." + path + ".Item"),
                                 yamlMarket.getLong("Items." + path + ".Time-Till-Expire"),
                                 yamlMarket.getLong("Items." + path + ".Full-Time"),
+                                yamlMarket.get("Items." + path + ".Added-Time") != null ? yamlMarket.getLong("Items." + path + ".Added-Time") : -1,
                                 yamlMarket.getDouble("Items." + path + ".Price")
                             );
                             break;
@@ -228,6 +232,7 @@ public class MySQLMarket
                                 yamlMarket.getItemStack("Items." + path + ".Item"),
                                 yamlMarket.getLong("Items." + path + ".Time-Till-Expire"),
                                 yamlMarket.getLong("Items." + path + ".Full-Time"),
+                                yamlMarket.get("Items." + path + ".Added-Time") != null ? yamlMarket.getLong("Items." + path + ".Added-Time") : -1,
                                 yamlMarket.getDouble("Items." + path + ".Reward")
                             );
                             break;
@@ -240,6 +245,7 @@ public class MySQLMarket
                                 yamlMarket.getItemStack("Items." + path + ".Item"),
                                 yamlMarket.getLong("Items." + path + ".Time-Till-Expire"),
                                 yamlMarket.getLong("Items." + path + ".Full-Time"),
+                                yamlMarket.get("Items." + path + ".Added-Time") != null ? yamlMarket.getLong("Items." + path + ".Added-Time") : -1,
                                 yamlMarket.getDouble("Items." + path + ".Price"),
                                 yamlMarket.getString("Items." + path + ".TopBidder")
                             );
@@ -263,9 +269,13 @@ public class MySQLMarket
                     repairConnection();
                     reloadData();
                 }
-            } catch (SQLException ex1) {}
+            } catch (SQLException ex1) {
+                PluginControl.printStackTrace(ex1);
+            }
+            PluginControl.printStackTrace(ex);
         } catch (InvalidConfigurationException | NullPointerException ex) {
             if (Main.language.get("MarketDataFailedToLoad") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MarketDataFailedToLoad").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+            PluginControl.printStackTrace(ex);
         }
     }
     

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -24,7 +25,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import studio.trc.bukkit.crazyauctionsplus.Main;
 import studio.trc.bukkit.crazyauctionsplus.api.events.AuctionExpireEvent;
-import studio.trc.bukkit.crazyauctionsplus.api.events.AuctionWinBidEvent;
 import studio.trc.bukkit.crazyauctionsplus.currency.CurrencyManager;
 import studio.trc.bukkit.crazyauctionsplus.database.DatabaseEngine;
 import studio.trc.bukkit.crazyauctionsplus.database.GlobalMarket;
@@ -44,7 +44,9 @@ import studio.trc.bukkit.crazyauctionsplus.util.enums.ShopType;
 import studio.trc.bukkit.crazyauctionsplus.util.FileManager.*;
 import studio.trc.bukkit.crazyauctionsplus.util.enums.Messages;
 
-public class PluginControl {
+public class PluginControl
+{
+    public static Map<CommandSender, Boolean> stackTraceVisible = new HashMap();
     
     public static String color(String msg) {
         return ChatColor.translateAlternateColorCodes('&', msg);
@@ -82,6 +84,7 @@ public class PluginControl {
             } else {
                 item = new ItemStack(Material.matchMaterial("STAINED_CLAY"), 1, (short) 14);
             }
+            PluginControl.printStackTrace(e);
         }
         return item;
     }
@@ -103,6 +106,7 @@ public class PluginControl {
             } else {
                 item = new ItemStack(Material.matchMaterial("STAINED_CLAY"), 1, (short) 14);
             }
+            PluginControl.printStackTrace(e);
         }
         ItemMeta me = item.getItemMeta();
         me.setDisplayName(color(name));
@@ -129,6 +133,7 @@ public class PluginControl {
             } else {
                 item = new ItemStack(Material.matchMaterial("STAINED_CLAY"), 1, (short) 14);
             }
+            PluginControl.printStackTrace(e);
         }
         ItemMeta me = item.getItemMeta();
         me.setDisplayName(color(name));
@@ -586,75 +591,62 @@ public class PluginControl {
         }
     }
     
+    public static void printStackTrace(Exception ex) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+        for (StackTraceElement ste : ex.getStackTrace()) {
+            sb.append(ste.toString());
+            sb.append("\n");
+        }
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (stackTraceVisible.containsKey(player)) {
+                if (stackTraceVisible.get(player)) {
+                    Map<String, String> placeholders = new HashMap();
+                    placeholders.put("%stacktrace%", sb.toString());
+                    Messages.sendMessage(player, "Admin-Command.PrintStackTrace.Messages", placeholders);
+                }
+            }
+        }
+        if (stackTraceVisible.containsKey(Bukkit.getServer().getConsoleSender())) {
+            if (stackTraceVisible.get(Bukkit.getServer().getConsoleSender())) {
+                Map<String, String> placeholders = new HashMap();
+                placeholders.put("%stacktrace%", sb.toString());
+                Messages.sendMessage(Bukkit.getServer().getConsoleSender(), "Admin-Command.PrintStackTrace.Messages", placeholders);
+            }
+        }
+    }
+    
     public static void updateCacheData() {
         if (FileManager.isBackingUp()) return;
         if (FileManager.isRollingBack()) return;
         if (FileManager.isSyncing()) return;
-        Calendar cal = Calendar.getInstance();
-        Calendar expireTime = Calendar.getInstance();
-        Calendar fullExpireTime = Calendar.getInstance();
         boolean shouldSave = false;
         GlobalMarket market = GlobalMarket.getMarket();
-        if (!market.getItems().isEmpty()) {
-            for (MarketGoods mg : new ArrayList<>(market.getItems())) {
-                if (mg.getItem() == null) {
+        List<MarketGoods> array = market.getItems();
+        if (!array.isEmpty()) {
+            for (int i = array.size() - 1;i > -1;i--) {
+                MarketGoods mg = array.get(i);
+                if (mg == null) {
+                    continue;
+                } else if (mg.getItem() == null) {
                     market.removeGoods(mg);
                     continue;
                 }
-                expireTime.setTimeInMillis(mg.getTimeTillExpire());
-                fullExpireTime.setTimeInMillis(mg.getFullTime());
-                if (cal.after(expireTime)) {
+                if (mg.expired()) {
                     switch (mg.getShopType()) {
-                        case BID: {
-                            if (Files.CONFIG.getFile().getBoolean("Settings.Auction-Process-Settings.Countdown-Tips.Enabled")) {
-                                continue;
-                            }
-                            if (!mg.getTopBidder().equalsIgnoreCase("None") && CurrencyManager.getMoney(mg.getItemOwner().getUUID()) >= mg.getPrice()) {
-                                UUID owner = mg.getItemOwner().getUUID();
-                                UUID winner = UUID.fromString(mg.getTopBidder().split(":")[1]);
-                                double price = mg.getPrice();
-                                CurrencyManager.addMoney(PluginControl.getOfflinePlayer(owner), price);
-                                CurrencyManager.removeMoney(PluginControl.getOfflinePlayer(winner), price);
-                                HashMap<String, String> placeholders = new HashMap();
-                                placeholders.put("%Price%", String.valueOf(mg.getPrice()));
-                                placeholders.put("%price%", String.valueOf(mg.getPrice()));
-                                placeholders.put("%Player%", PluginControl.getOfflinePlayer(winner).getName());
-                                placeholders.put("%player%", PluginControl.getOfflinePlayer(winner).getName());
-                                if (PluginControl.isOnline(winner) && PluginControl.getPlayer(winner) != null) {
-                                    Player player = PluginControl.getPlayer(winner);
-                                    AuctionWinBidEvent event = new AuctionWinBidEvent(player, mg, price);
-                                    new BukkitRunnable() {
-                                        @Override
-                                        public void run() {
-                                            Bukkit.getPluginManager().callEvent(event);
-                                        }
-                                    }.runTask(Main.getInstance());
-                                    Messages.sendMessage(player, "Win-Bidding", placeholders);
-                                }
-                                if (PluginControl.isOnline(owner) && PluginControl.getPlayer(owner) != null) {
-                                    Player player = PluginControl.getPlayer(owner);
-                                    Messages.sendMessage(player, "Someone-Won-Players-Bid", placeholders);
-                                }
-                                Storage playerdata = Storage.getPlayer(winner);
-                                ItemMail im = new ItemMail(playerdata.makeUID(), PluginControl.getOfflinePlayer(winner), mg.getItem(), fullExpireTime.getTimeInMillis(), false);
-                                playerdata.addItem(im);
-                                market.removeGoods(mg.getUID());
-                            } else {
-                                Storage playerdata = Storage.getPlayer(mg.getItemOwner().getUUID());
-                                ItemMail im = new ItemMail(playerdata.makeUID(), mg.getItemOwner().getUUID(), mg.getItem(), fullExpireTime.getTimeInMillis(), false);
-                                playerdata.addItem(im);
-                                market.removeGoods(mg.getUID());
-                                if (mg.getItemOwner().getPlayer() != null) {
-                                    Messages.sendMessage(mg.getItemOwner().getPlayer(), "Item-Has-Expired");
-                                }
-                            }
-                            break;
-                        }
                         case BUY: {
                             UUID owner = mg.getItemOwner().getUUID();
                             Player player = getPlayer(owner);
                             if (player != null) {
-                                Messages.sendMessage(player, "Item-Has-Expired");
+                                Map<String, String> placeholders = new HashMap();
+                                String item;
+                                try {
+                                    item = mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : (String) mg.getItem().getClass().getMethod("getI18NDisplayName").invoke(mg.getItem());
+                                } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                                    item = mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : mg.getItem().getType().toString().toLowerCase().replace("_", " ");
+                                }
+                                placeholders.put("%item%", item);
+                                Messages.sendMessage(player, "Item-Has-Expired", placeholders);
                             }
                             AuctionExpireEvent event = new AuctionExpireEvent(player, mg, ShopType.BUY);
                             new BukkitRunnable() {
@@ -671,7 +663,15 @@ public class PluginControl {
                             UUID owner = mg.getItemOwner().getUUID();
                             Player player = getPlayer(owner);
                             if (player != null) {
-                                Messages.sendMessage(player, "Item-Has-Expired");
+                                Map<String, String> placeholders = new HashMap();
+                                String item;
+                                try {
+                                    item = mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : (String) mg.getItem().getClass().getMethod("getI18NDisplayName").invoke(mg.getItem());
+                                } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                                    item = mg.getItem().getItemMeta().hasDisplayName() ? mg.getItem().getItemMeta().getDisplayName() : mg.getItem().getType().toString().toLowerCase().replace("_", " ");
+                                }
+                                placeholders.put("%item%", item);
+                                Messages.sendMessage(player, "Item-Has-Expired", placeholders);
                             }
                             AuctionExpireEvent event = new AuctionExpireEvent(player, mg, ShopType.SELL);
                             new BukkitRunnable() {
@@ -681,7 +681,7 @@ public class PluginControl {
                                 }
                             }.runTask(Main.getInstance());
                             Storage playerdata = Storage.getPlayer(getOfflinePlayer(owner));
-                            ItemMail im = new ItemMail(playerdata.makeUID(), getOfflinePlayer(owner), mg.getItem(), fullExpireTime.getTimeInMillis(), false);
+                            ItemMail im = new ItemMail(playerdata.makeUID(), getOfflinePlayer(owner), mg.getItem(), PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")), mg.getAddedTime(), false);
                             playerdata.addItem(im);
                             market.removeGoods(mg.getUID());
                             break;
@@ -731,6 +731,7 @@ public class PluginControl {
         try {
             return StorageMethod.valueOf(Files.CONFIG.getFile().getString("Settings.Split-Database.Item-Mail").toUpperCase().replace("MYSQL", "MySQL").replace("SQLITE", "SQLite"));
         } catch (IllegalArgumentException ex) {
+            PluginControl.printStackTrace(ex);
             return StorageMethod.YAML;
         }
     }
@@ -748,6 +749,7 @@ public class PluginControl {
         try {
             return StorageMethod.valueOf(Files.CONFIG.getFile().getString("Settings.Split-Database.Market").toUpperCase().replace("MYSQL", "MySQL").replace("SQLITE", "SQLite"));
         } catch (IllegalArgumentException ex) {
+            PluginControl.printStackTrace(ex);
             return StorageMethod.YAML;
         }
     }
@@ -949,6 +951,7 @@ public class PluginControl {
                 }
             }
         } catch (Exception ex) {
+            PluginControl.printStackTrace(ex);
             return false;
         }
     }
@@ -1053,6 +1056,7 @@ public class PluginControl {
                                         try {
                                             yaml.load(f);
                                         } catch (IOException | InvalidConfigurationException ex) {
+                                            PluginControl.printStackTrace(ex);
                                             continue;
                                         }
                                         PreparedStatement pstatement = DBFile.prepareStatement("INSERT INTO ItemMail (Name, UUID, YamlData) VALUES(?, ?, ?)");
@@ -1075,6 +1079,7 @@ public class PluginControl {
                                         try {
                                             yaml.load(f);
                                         } catch (IOException | InvalidConfigurationException ex) {
+                                            PluginControl.printStackTrace(ex);
                                             continue;
                                         }
                                         PreparedStatement pstatement = DBFile.prepareStatement("INSERT INTO ItemMail (Name, UUID, YamlData) VALUES(?, ?, ?)");
@@ -1102,6 +1107,7 @@ public class PluginControl {
                                 try {
                                     yaml.load(f);
                                 } catch (IOException | InvalidConfigurationException ex) {
+                                    PluginControl.printStackTrace(ex);
                                     continue;
                                 }
                                 PreparedStatement pstatement = DBFile.prepareStatement("INSERT INTO ItemMail (Name, UUID, YamlData) VALUES(?, ?, ?)");
@@ -1349,6 +1355,7 @@ public class PluginControl {
                     placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                     Messages.sendMessage(sender, "Admin-Command.RollBack.Failed", placeholders);
                 }
+                PluginControl.printStackTrace(ex);
             }
         }
     }

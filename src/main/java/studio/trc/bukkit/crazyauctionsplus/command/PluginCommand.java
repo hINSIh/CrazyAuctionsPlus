@@ -321,6 +321,20 @@ public class PluginCommand
                             }
                             Messages.sendMessage(sender, "Admin-Command.Synchronize.Starting");
                             FileManager.synchronize(sender);
+                        } else if (args[1].equalsIgnoreCase("printstacktrace")) {
+                            if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.PrintStackTrace", true)) return true;
+                            if (PluginControl.stackTraceVisible.containsKey(sender)) {
+                                if (PluginControl.stackTraceVisible.get(sender)) {
+                                    PluginControl.stackTraceVisible.put(sender, false);
+                                    Messages.sendMessage(sender, "Admin-Command.PrintStackTrace.Turn-Off");
+                                } else {
+                                    PluginControl.stackTraceVisible.put(sender, true);
+                                    Messages.sendMessage(sender, "Admin-Command.PrintStackTrace.Turn-On");
+                                }
+                            } else {
+                                PluginControl.stackTraceVisible.put(sender, true);
+                                Messages.sendMessage(sender, "Admin-Command.PrintStackTrace.Turn-On");
+                            }
                         } else if (args[1].equalsIgnoreCase("market")) {
                             if (!PluginControl.hasCommandPermission(sender, "Admin.SubCommands.Market", true)) return true;
                             if (args.length == 2) {
@@ -352,7 +366,7 @@ public class PluginCommand
                                         } catch (NumberFormatException ex) {}
                                         StringBuilder formatList = new StringBuilder();
                                         for (int i = page * nosp - nosp;i < list.size() && i < page * nosp;i++) {
-                                            String format = Messages.getValue("Admin-Command.Market.List.Format").replace("%uid%", String.valueOf(list.get(i).getUID())).replace("%money%", String.valueOf(list.get(i).getShopType().equals(ShopType.BUY) ? list.get(i).getReward() : list.get(i).getPrice()));
+                                            String format = Messages.getValue("Admin-Command.Market.List.Format").replace("%uid%", String.valueOf(list.get(i).getUID())).replace("%money%", String.valueOf(list.get(i).getShopType().equals(ShopType.BUY) ? list.get(i).getReward() : list.get(i).getPrice())).replace("%owner%", list.get(i).getItemOwner().getName());
                                             try {
                                                 format = format.replace("%item%", list.get(i).getItem().getItemMeta().hasDisplayName() ? list.get(i).getItem().getItemMeta().getDisplayName() : (String) list.get(i).getItem().getClass().getMethod("getI18NDisplayName").invoke(list.get(i).getItem()));
                                             } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
@@ -514,7 +528,9 @@ public class PluginCommand
                                         if (!file.exists()) {
                                             try {
                                                 file.createNewFile();
-                                            } catch (IOException ex) {}
+                                            } catch (IOException ex) {
+                                                PluginControl.printStackTrace(ex);
+                                            }
                                         }
                                         try (OutputStream out = new FileOutputStream(file)) {
                                             out.write(market.getYamlData().saveToString().getBytes());
@@ -523,6 +539,7 @@ public class PluginCommand
                                             placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                                             Messages.sendMessage(sender, "Admin-Command.Market.Download.Failed", placeholders);
                                             marketConfirm.remove(sender);
+                                            PluginControl.printStackTrace(ex);
                                             return true;
                                         }
                                         Map<String, String> placeholders = new HashMap();
@@ -559,6 +576,7 @@ public class PluginCommand
                                             placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                                             Messages.sendMessage(sender, "Admin-Command.Market.Upload.Failed", placeholders);
                                             marketConfirm.remove(sender);
+                                            PluginControl.printStackTrace(ex);
                                             return true;
                                         }
                                         switch (PluginControl.getMarketStorageMethod()) {
@@ -574,6 +592,7 @@ public class PluginCommand
                                                     placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                                                     Messages.sendMessage(sender, "Admin-Command.Market.Upload.Failed", placeholders);
                                                     marketConfirm.remove(sender);
+                                                    PluginControl.printStackTrace(ex);
                                                     return true;
                                                 }
                                                 break;
@@ -590,6 +609,7 @@ public class PluginCommand
                                                     placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                                                     Messages.sendMessage(sender, "Admin-Command.Market.Upload.Failed", placeholders);
                                                     marketConfirm.remove(sender);
+                                                    PluginControl.printStackTrace(ex);
                                                     return true;
                                                 }
                                                 break;
@@ -901,7 +921,9 @@ public class PluginCommand
                                         if (!file.exists()) {
                                             try {
                                                 file.createNewFile();
-                                            } catch (IOException ex) {}
+                                            } catch (IOException ex) {
+                                                PluginControl.printStackTrace(ex);
+                                            }
                                         }
                                         try (OutputStream out = new FileOutputStream(file)) {
                                             out.write(Storage.getPlayer(uuid).getYamlData().saveToString().getBytes());
@@ -910,6 +932,7 @@ public class PluginCommand
                                             placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                                             Messages.sendMessage(sender, "Admin-Command.Player.Download.Failed", placeholders);
                                             itemMailConfirm.remove(sender);
+                                            PluginControl.printStackTrace(ex);
                                             return true;
                                         }
                                         Map<String, String> placeholders = new HashMap();
@@ -966,6 +989,7 @@ public class PluginCommand
                                             placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                                             Messages.sendMessage(sender, "Admin-Command.Player.Upload.Failed", placeholders);
                                             itemMailConfirm.remove(sender);
+                                            PluginControl.printStackTrace(ex);
                                             return true;
                                         }
                                         switch (PluginControl.getMarketStorageMethod()) {
@@ -982,6 +1006,7 @@ public class PluginCommand
                                                     placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                                                     Messages.sendMessage(sender, "Admin-Command.Player.Upload.Failed", placeholders);
                                                     itemMailConfirm.remove(sender);
+                                                    PluginControl.printStackTrace(ex);
                                                     return true;
                                                 }
                                                 break;
@@ -999,6 +1024,7 @@ public class PluginCommand
                                                     placeholders.put("%error%", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null");
                                                     Messages.sendMessage(sender, "Admin-Command.Player.Upload.Failed", placeholders);
                                                     itemMailConfirm.remove(sender);
+                                                    PluginControl.printStackTrace(ex);
                                                     return true;
                                                 }
                                                 break;
@@ -1317,7 +1343,6 @@ public class PluginCommand
                         if (!PluginControl.hasCommandPermission(player, "Buy", true)) return true;
                         if (!PluginControl.isNumber(args[1])) {
                             Map<String, String> placeholders = new HashMap();
-                            placeholders.put("%Arg%", args[1]);
                             placeholders.put("%arg%", args[1]);
                             Messages.sendMessage(player, "Not-A-Valid-Number", placeholders);
                             return true;
@@ -1361,7 +1386,6 @@ public class PluginCommand
                         if (args.length >= 3) {
                             if (!PluginControl.isInt(args[2])) {
                                 Map<String, String> placeholders = new HashMap();
-                                placeholders.put("%Arg%", args[1]);
                                 placeholders.put("%arg%", args[1]);
                                 Messages.sendMessage(player, "Not-A-Valid-Number", placeholders);
                                 return true;
@@ -1399,6 +1423,7 @@ public class PluginCommand
                             item,
                             PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Buy-Time")),
                             PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")),
+                            System.currentTimeMillis(),
                             reward
                         );
                         market.addGoods(goods);
@@ -1407,10 +1432,8 @@ public class PluginCommand
                         placeholders.put("%reward%", String.valueOf(reward));
                         placeholders.put("%tax%", String.valueOf(tax));
                         try {
-                            placeholders.put("%Item%", item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : (String) item.getClass().getMethod("getI18NDisplayName").invoke(item));
                             placeholders.put("%item%", item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : (String) item.getClass().getMethod("getI18NDisplayName").invoke(item));
                         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                            placeholders.put("%Item%", item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString().toLowerCase().replace("_", " "));
                             placeholders.put("%item%", item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString().toLowerCase().replace("_", " "));
                         }
                         Messages.sendMessage(player, "Added-Item-For-Acquisition", placeholders);
@@ -1455,7 +1478,6 @@ public class PluginCommand
                         if (args.length >= 3) {
                             if (!PluginControl.isInt(args[2])) {
                                 Map<String, String> placeholders = new HashMap();
-                                placeholders.put("%Arg%", args[2]);
                                 placeholders.put("%arg%", args[2]);
                                 Messages.sendMessage(player, "Not-A-Valid-Number", placeholders);
                                 return true;
@@ -1470,7 +1492,6 @@ public class PluginCommand
                         }
                         if (!PluginControl.isNumber(args[1])) {
                             Map<String, String> placeholders = new HashMap();
-                            placeholders.put("%Arg%", args[1]);
                             placeholders.put("%arg%", args[1]);
                             Messages.sendMessage(player, "Not-A-Valid-Number", placeholders);
                             return true;
@@ -1582,6 +1603,7 @@ public class PluginCommand
                             is,
                             type.equals(ShopType.BID) ? PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Bid-Time")) : PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Sell-Time")),
                             PluginControl.convertToMill(FileManager.Files.CONFIG.getFile().getString("Settings.Full-Expire-Time")),
+                            System.currentTimeMillis(),
                             price,
                             "None"
                         );
@@ -1847,7 +1869,7 @@ public class PluginCommand
                     }
                 }
                 List<String> list = new ArrayList();
-                for (String text : new String[]{"backup", "rollback", "info", "market", "player", "synchronize", "itemcollection"}) {
+                for (String text : new String[]{"backup", "rollback", "info", "market", "player", "synchronize", "itemcollection", "printstacktrace"}) {
                     if (text.toLowerCase().startsWith(args[1].toLowerCase())) {
                         list.add(text);
                     }

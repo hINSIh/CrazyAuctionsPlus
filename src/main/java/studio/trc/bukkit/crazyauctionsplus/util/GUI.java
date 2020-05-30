@@ -111,7 +111,7 @@ public class GUI
                                 String owner = mg.getItemOwner().getName();
                                 lore.add(l.replace("%reward%", reward)
                                     .replace("%owner%", owner)
-                                    .replace("%addedtime%", new SimpleDateFormat(Messages.getValue("Date-Format")).format(new Date(mg.getFullTime())))
+                                    .replace("%addedtime%", new SimpleDateFormat(Messages.getValue("Date-Format")).format(new Date(mg.getAddedTime())))
                                     .replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                             }
                             items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -122,7 +122,7 @@ public class GUI
                     case SELL: {
                         if (mg.getShopType().equals(ShopType.SELL)) {
                             for (String l : Messages.getValueList("SellingItemLore")) {
-                                lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%Owner%", mg.getItemOwner().getName()).replace("%owner%", mg.getItemOwner().getName()).replace("%addedtime%", new SimpleDateFormat(Messages.getValue("Date-Format")).format(new Date(mg.getFullTime()))).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
+                                lore.add(l.replace("%price%", String.valueOf(mg.getPrice())).replace("%Owner%", mg.getItemOwner().getName()).replace("%owner%", mg.getItemOwner().getName()).replace("%addedtime%", new SimpleDateFormat(Messages.getValue("Date-Format")).format(new Date(mg.getAddedTime()))).replace("%time%", PluginControl.convertToTime(mg.getTimeTillExpire(), false)));
                             }
                             if (mg.getItem() == null) continue;
                             items.add(PluginControl.addLore(mg.getItem().clone(), lore));
@@ -761,7 +761,9 @@ public class GUI
                 String sound = FileManager.Files.CONFIG.getFile().getString("Settings.Sounds.Sound");
                 try {
                     player.playSound(player.getLocation(), Sound.valueOf(sound), 1, 1);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    PluginControl.printStackTrace(e);
+                }
             }
         } else {
             if (PluginControl.getVersion() >= 191) {

@@ -58,7 +58,9 @@ public class Category {
                     try {
                         Material m = Material.matchMaterial(name);
                         materialList.add(m);
-                    } catch (Exception ex) {}
+                    } catch (Exception ex) {
+                        PluginControl.printStackTrace(ex);
+                    }
                 }
             }
             if (cat.get("Category." + moduleName + ".Modules") != null) {
@@ -86,6 +88,7 @@ public class Category {
                     try {
                         method = Material.class.getMethod(methods);
                     } catch (NoSuchMethodException | SecurityException ex) {
+                        PluginControl.printStackTrace(ex);
                         continue;
                     }
                     for (Material materials : Material.values()) {
@@ -94,7 +97,9 @@ public class Category {
                             if (value) {
                                 materialList.add(materials);
                             }
-                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {}
+                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                            PluginControl.printStackTrace(ex);
+                        }
                     }
                 }
             }

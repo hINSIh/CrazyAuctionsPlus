@@ -43,6 +43,7 @@ public class MySQLEngine
         try {
             return rs.next();
         } catch (SQLException ex) {
+            PluginControl.printStackTrace(ex);
             return false;
         }
     }
@@ -59,6 +60,7 @@ public class MySQLEngine
         try {
             return rs.next();
         } catch (SQLException ex) {
+            PluginControl.printStackTrace(ex);
             return false;
         }
     }
@@ -72,6 +74,7 @@ public class MySQLEngine
         try {
             return rs.next();
         } catch (SQLException ex) {
+            PluginControl.printStackTrace(ex);
             return false;
         }
     }
@@ -121,7 +124,9 @@ public class MySQLEngine
                     if (!connection.isClosed()) {
                         connection.close();
                     }
-                } catch (SQLException ex) {}
+                } catch (SQLException ex) {
+                    PluginControl.printStackTrace(ex);
+                }
             }, "Closing-Thread");
             closing.start();
             long time = System.currentTimeMillis();
@@ -134,7 +139,9 @@ public class MySQLEngine
             }
             connectToTheDatabase();
             databaseReloading = false;
-        } catch (InterruptedException ex) {}
+        } catch (InterruptedException ex) {
+            PluginControl.printStackTrace(ex);
+        }
     }
 
     @Override
@@ -158,13 +165,16 @@ public class MySQLEngine
             } catch (SQLException ex) {
                 if (Main.language.get("MySQL-DataTableCreationFailed") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataTableCreationFailed").replace("{prefix}", PluginControl.getPrefix()).replace("{error}", ex.getLocalizedMessage()).replace("&", "§"));
                 Files.CONFIG.getFile().set("Settings.MySQL-Storage.Enabled", false);
+                PluginControl.printStackTrace(ex);
             }
         } catch (ClassNotFoundException ex) {
             if (Main.language.get("MySQL-NoDriverFound") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-NoDriverFound").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
             Files.CONFIG.getFile().set("Settings.MySQL-Storage.Enabled", false);
+            PluginControl.printStackTrace(ex);
         } catch (SQLException ex) {
             if (Main.language.get("MySQL-ConnectionError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-ConnectionError").replace("{prefix}", PluginControl.getPrefix()).replace("{error}", ex.getLocalizedMessage()).replace("&", "§"));
             Files.CONFIG.getFile().set("Settings.MySQL-Storage.Enabled", false);
+            PluginControl.printStackTrace(ex);
         }
     }
 
@@ -185,6 +195,7 @@ public class MySQLEngine
                         if (Main.language.get("MySQL-BeyondRepair") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-BeyondRepair").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
                         break;
                     }
+                    PluginControl.printStackTrace(ex);
                 }
             }
         }, "MySQLConnectionRepairThread").start();
@@ -201,7 +212,10 @@ public class MySQLEngine
                 if (Main.language.get("MySQL-DataSavingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataSavingError").replace("{error}", ex.getLocalizedMessage()).replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
                 try {
                     if (getConnection().isClosed()) repairConnection();
-                } catch (SQLException ex1) {}
+                } catch (SQLException ex1) {
+                    PluginControl.printStackTrace(ex1);
+                }
+                PluginControl.printStackTrace(ex);
             }
         }, "MySQLExecuteUpdateThread").start();
     }
@@ -218,7 +232,10 @@ public class MySQLEngine
                 if (Main.language.get("MySQL-DataSavingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataSavingError").replace("{error}", ex.getLocalizedMessage()).replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
                 try {
                     if (getConnection().isClosed()) repairConnection();
-                } catch (SQLException ex1) {}
+                } catch (SQLException ex1) {
+                    PluginControl.printStackTrace(ex1);
+                }
+                PluginControl.printStackTrace(ex);
             }
         }, "MySQLExecuteUpdateThread").start();
     }
@@ -233,7 +250,10 @@ public class MySQLEngine
             if (Main.language.get("MySQL-DataReadingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataReadingError").replace("{error}", ex.getLocalizedMessage()).replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
             try {
                 if (getConnection().isClosed()) repairConnection();
-            } catch (SQLException ex1) {}
+            } catch (SQLException ex1) {
+                PluginControl.printStackTrace(ex1);
+            }
+            PluginControl.printStackTrace(ex);
         }
         return null;
     }
@@ -249,7 +269,10 @@ public class MySQLEngine
             if (Main.language.get("MySQL-DataReadingError") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("MySQL-DataReadingError").replace("{error}", ex.getLocalizedMessage()).replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
             try {
                 if (getConnection().isClosed()) repairConnection();
-            } catch (SQLException ex1) {}
+            } catch (SQLException ex1) {
+                PluginControl.printStackTrace(ex1);
+            }
+            PluginControl.printStackTrace(ex);
         }
         return null;
     }

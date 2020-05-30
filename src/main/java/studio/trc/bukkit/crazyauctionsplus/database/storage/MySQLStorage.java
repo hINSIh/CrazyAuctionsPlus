@@ -55,9 +55,13 @@ public class MySQLStorage
                 if (super.getConnection().isClosed()) {
                     super.repairConnection();
                 }
-            } catch (SQLException ex1) {}
+            } catch (SQLException ex1) {
+                PluginControl.printStackTrace(ex1);
+            }
+            PluginControl.printStackTrace(ex);
         } catch (InvalidConfigurationException | NullPointerException ex) {
             if (Main.language.get("PlayerDataFailedToLoad") != null) Main.getInstance().getServer().getConsoleSender().sendMessage(Main.language.getProperty("PlayerDataFailedToLoad").replace("{player}", Bukkit.getPlayer(uuid) != null ? Bukkit.getPlayer(uuid).getName() : "null").replace("{error}", ex.getLocalizedMessage() != null ? ex.getLocalizedMessage() : "null").replace("{prefix}", PluginControl.getPrefix()).replace("&", "§"));
+            PluginControl.printStackTrace(ex);
         }
         
         loadData();
@@ -78,10 +82,12 @@ public class MySQLStorage
                             yamlData.get("Items." + path + ".UID") != null ? yamlData.getLong("Items." + path + ".UID") : Long.valueOf(path),
                             uuid,
                             yamlData.get("Items." + path + ".Item") != null ? yamlData.getItemStack("Items." + path + ".Item") : new ItemStack(Material.AIR),
-                            yamlData.get("Items." + path + ".Full-Time") != null ? yamlData.getLong("Items." + path + ".Full-Time") : 0,
-                            yamlData.get("Items." + path + ".Never-Expire") != null ? yamlData.getBoolean("Items." + path + ".Never-Expire") : false
+                            yamlData.getLong("Items." + path + ".Full-Time"),
+                            yamlData.get("Items." + path + ".Added-Time") != null ? yamlData.getLong("Items." + path + ".Added-Time") : -1,
+                            yamlData.getBoolean("Items." + path + ".Never-Expire")
                         );
                     } catch (Exception ex) {
+                        PluginControl.printStackTrace(ex);
                         continue;
                     }
                     mailBox.add(im);
@@ -130,7 +136,7 @@ public class MySQLStorage
             statement.setString(1, yaml);
             executeUpdate(statement);
         } catch (SQLException ex) {
-            Logger.getLogger(MySQLStorage.class.getName()).log(Level.SEVERE, null, ex);
+            PluginControl.printStackTrace(ex);
         }
     }
 
