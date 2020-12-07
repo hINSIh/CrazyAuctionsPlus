@@ -20,6 +20,7 @@ English:
     Cancelled-Item-On-Buy: '{prefix}&cYou have canceled an &r%item% &con the auction list, return your &a$%reward% &c.'
     Cancelled-Item-On-Bid: '{prefix}&cYou have canceled an &r%item% &con the auction list, return your items with /Ca Mail.'
     Item-Has-Expired: '{prefix}&6Your product &r%item% &6 on the market has expired.'
+    Mail-Item-Has-Expired: '{prefix}&6The item has expired.'
     Admin-Force-Cancelled: '{prefix}&cYou have force canceled a sale.'
     Admin-Force-Cancelled-To-Player: '{prefix}&cOne of your items was force canceled by an Admin.'
     Item-Doesnt-Exist: '{prefix}&cThat item isn''t in the crazy auctions any more.'

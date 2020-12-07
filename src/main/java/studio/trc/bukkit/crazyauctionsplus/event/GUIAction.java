@@ -770,7 +770,11 @@ public class GUIAction
                                 long uid = mailUID.get(player.getUniqueId()).get(slot);
                                 for (ItemMail im : playerdata.getMailBox()) {
                                     if (uid == im.getUID()) {
-                                        if (!PluginControl.isInvFull(player)) {
+                                        if (im.expired()) {
+                                            Messages.sendMessage(player, "Mail-Item-Has-Expired");
+                                            playerdata.removeItem(im);
+                                            openPlayersMail(player, 1);
+                                        } else if (!PluginControl.isInvFull(player)) {
                                             Messages.sendMessage(player, "Got-Item-Back");
                                             im.giveItem();
                                             playerdata.saveData();
